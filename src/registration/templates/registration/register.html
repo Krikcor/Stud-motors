@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Inscription - M-Motors{% endblock %}
+
+{% block content %}
+<h1>Inscription client</h1>
+
+{% if messages %}
+    {% for message in messages %}
+        <p style="color:green;">{{ message }}</p>
+    {% endfor %}
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+
+    <label>Prénom :</label>
+    {{ form.first_name }}<br><br>
+
+    <label>Nom :</label>
+    {{ form.last_name }}<br><br>
+
+    <label>Email :</label>
+    {{ form.email }}<br><br>
+
+    <label>Nom d'utilisateur :</label>
+    {{ form.username }}<br><br>
+
+    <label>Mot de passe :</label>
+    {{ form.password1 }}<br><br>
+
+    <label>Confirmation mot de passe :</label>
+    {{ form.password2 }}<br><br>
+
+    <button type="submit">S'inscrire</button>
+</form>
+
+{% endblock %}
