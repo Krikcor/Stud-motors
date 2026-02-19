@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
+from accounts.models import Profile
 
 def login_view(request):
     if request.method == 'POST':
@@ -9,10 +10,15 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('index')  # redirige vers la page d'accueil
+            try:
+                profile = user.profile
+                if profile.role == 'pro':
+                    return redirect('pro_dashboard')
+                elif profile.role == 'client':
+                    return redirect('client_dashboard')
+            except Profile.DoesNotExist:
+                messages.error(request, "Profil non trouvé")
+                return redirect('login')
         else:
             messages.error(request, "Nom d'utilisateur ou mot de passe incorrect")
     return render(request, 'accounts/login.html')
-from django.shortcuts import render
-
-# Create your views here.

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Pro{% endblock %}
+
+{% block content %}
+<h1>Back-office M-Motors</h1>
+<p>Bonjour {{ user.first_name }}</p>
+
+<ul>
+    <li><a href="#">Gestion des véhicules</a></li>
+    <li><a href="#">Gestion des clients</a></li>
+    <li><a href="#">Statistiques</a></li>
+</ul>
+{% endblock %}
