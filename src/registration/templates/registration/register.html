@@ -14,23 +14,54 @@
 <form method="post">
     {% csrf_token %}
 
+    {% if form.non_field_errors %}
+        <div style="color:red;">
+            {{ form.non_field_errors }}
+        </div>
+        <br>
+    {% endif %}
+
     <label>Prénom :</label>
-    {{ form.first_name }}<br><br>
+    {{ form.first_name }}
+    {% if form.first_name.errors %}
+        <div style="color:red;">{{ form.first_name.errors }}</div>
+    {% endif %}
+    <br><br>
 
     <label>Nom :</label>
-    {{ form.last_name }}<br><br>
+    {{ form.last_name }}
+    {% if form.last_name.errors %}
+        <div style="color:red;">{{ form.last_name.errors }}</div>
+    {% endif %}
+    <br><br>
 
     <label>Email :</label>
-    {{ form.email }}<br><br>
+    {{ form.email }}
+    {% if form.email.errors %}
+        <div style="color:red;">{{ form.email.errors }}</div>
+    {% endif %}
+    <br><br>
 
     <label>Nom d'utilisateur :</label>
-    {{ form.username }}<br><br>
+    {{ form.username }}
+    {% if form.username.errors %}
+        <div style="color:red;">{{ form.username.errors }}</div>
+    {% endif %}
+    <br><br>
 
     <label>Mot de passe :</label>
-    {{ form.password1 }}<br><br>
+    {{ form.password1 }}
+    {% if form.password1.errors %}
+        <div style="color:red;">{{ form.password1.errors }}</div>
+    {% endif %}
+    <br><br>
 
     <label>Confirmation mot de passe :</label>
-    {{ form.password2 }}<br><br>
+    {{ form.password2 }}
+    {% if form.password2.errors %}
+        <div style="color:red;">{{ form.password2.errors }}</div>
+    {% endif %}
+    <br><br>
 
     <button type="submit">S'inscrire</button>
 </form>
