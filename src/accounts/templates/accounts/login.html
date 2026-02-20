@@ -6,19 +6,28 @@
 <h1>Connexion</h1>
 
 {% if messages %}
-    {% for message in messages %}
-        <p style="color:red;">{{ message }}</p>
-    {% endfor %}
+    <div class="alert alert-danger">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
 {% endif %}
 
 <form method="post">
     {% csrf_token %}
+
     <label for="username">Nom d'utilisateur :</label>
-    <input type="text" name="username" id="username" required><br><br>
+    <input type="text" name="username" id="username" required autofocus autocomplete="username" placeholder="Entrez votre nom d'utilisateur"><br><br>
 
     <label for="password">Mot de passe :</label>
-    <input type="password" name="password" id="password" required><br><br>
+    <input type="password" name="password" id="password" required autocomplete="current-password" placeholder="Entrez votre mot de passe"><br><br>
 
     <button type="submit">Se connecter</button>
 </form>
+
+<p>
+    <a href="{% url 'register' %}">Créer un compte</a> |
+    <a href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
+</p>
+
 {% endblock %}
