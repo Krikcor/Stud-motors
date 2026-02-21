@@ -7,6 +7,7 @@ from django.core import mail
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
+from django.core.cache import cache
 
 
 class LoginTests(TestCase):
@@ -21,6 +22,8 @@ class LoginTests(TestCase):
         Profile.objects.create(user=self.pro_user, role='pro')
 
         self.login_url = reverse('login')
+        # Nettoie le cache avant chaque test
+        cache.clear()
 
     # Login client redirection client_dashboard
     def test_login_client_redirect(self):
@@ -51,13 +54,11 @@ class LoginTests(TestCase):
             'password': 'WrongPassword'
         })
 
-        # render 200
         self.assertEqual(response.status_code, 200)
-
         messages = list(get_messages(response.wsgi_request))
         self.assertTrue(any("Nom d'utilisateur ou mot de passe incorrect" in str(m) for m in messages))
 
-    # si rofil manquant il y a message erreur et redirection login
+    # si profil manquant il y a message erreur et redirection login
     def test_login_missing_profile(self):
         user_no_profile = User.objects.create_user(username='noprof', password='Testpass123')
         response = self.client.post(self.login_url, {
@@ -65,10 +66,7 @@ class LoginTests(TestCase):
             'password': 'Testpass123'
         }, follow=True)
 
-        # Page rendue
         self.assertEqual(response.status_code, 200)
-
-        # Vérifie le message
         messages = list(get_messages(response.wsgi_request))
         self.assertTrue(any("Profil utilisateur manquant" in str(m) for m in messages))
 
@@ -89,6 +87,46 @@ class LoginTests(TestCase):
         self.assertNotEqual(user.password, 'Testpass123')
         self.assertTrue(user.check_password('Testpass123'))
 
+    # ----- NOUVEAUX TESTS THROTTLE IP -----
+    def test_failed_login_increments_attempts(self):
+        ip = '1.2.3.4'
+        cache_key = f'login_attempts_{ip}'
+
+        self.client.post(self.login_url, {'username': 'client1', 'password': 'WrongPass'}, REMOTE_ADDR=ip)
+        attempts_data = cache.get(cache_key)
+        self.assertEqual(attempts_data['count'], 1)
+        self.assertIsNone(attempts_data['blocked_until'])
+
+    def test_login_block_after_5_attempts(self):
+        ip = '5.6.7.8'
+        cache_key = f'login_attempts_{ip}'
+
+        for i in range(5):
+            self.client.post(self.login_url, {'username': 'client1', 'password': 'WrongPass'}, REMOTE_ADDR=ip)
+
+        attempts_data = cache.get(cache_key)
+        self.assertEqual(attempts_data['count'], 5)
+        self.assertIsNotNone(attempts_data['blocked_until'])
+
+        # Vérifie qu’un nouveau login est bloqué
+        response = self.client.post(self.login_url, {'username': 'client1', 'password': 'Testpass123'}, REMOTE_ADDR=ip)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("Trop de tentatives" in str(m) for m in messages))
+
+    def test_login_resets_attempts_after_success(self):
+        ip = '9.10.11.12'
+        cache_key = f'login_attempts_{ip}'
+
+        # 2 échecs
+        for i in range(2):
+            self.client.post(self.login_url, {'username': 'client1', 'password': 'WrongPass'}, REMOTE_ADDR=ip)
+
+        # Login réussi
+        response = self.client.post(self.login_url, {'username': 'client1', 'password': 'Testpass123'}, REMOTE_ADDR=ip, follow=True)
+        self.assertRedirects(response, reverse('client_dashboard'))
+
+        # Vérifie que le cache a été vidé
+        self.assertIsNone(cache.get(cache_key))
 
 class PasswordResetTests(TestCase):
 
