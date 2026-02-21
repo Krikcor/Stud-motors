@@ -19,11 +19,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-o+sxmb3=#&%fp3l6z$=75@&5n^f5*4stn$_%tl*kb*b1wk%f9h"
+from dotenv import load_dotenv
+import os
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", "..", "secretenv"))
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+DEBUG = os.getenv("DEBUG") == "True"
 
 ALLOWED_HOSTS = []
 
@@ -126,3 +128,6 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "mmotors/static")
 ]
+
+# Email backend (dev)
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
