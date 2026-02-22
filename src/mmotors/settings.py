@@ -131,3 +131,4 @@ STATICFILES_DIRS = [
 
 # Email backend (dev)
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "no-reply@mmotors.com"
