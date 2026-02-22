@@ -96,14 +96,10 @@ class RegistrationTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
 
-
 from django.core import mail
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.contrib.auth.tokens import default_token_generator
 
 
-class ActivationTests(TestCase):
+class WelcomeEmailTests(TestCase):
 
     def setUp(self):
         self.register_url = reverse('register')
@@ -111,53 +107,33 @@ class ActivationTests(TestCase):
         self.valid_data = {
             'first_name': 'Jean',
             'last_name': 'Dupont',
-            'email': 'jean_activation@example.com',
-            'username': 'jean_activation',
+            'email': 'jean_welcome@example.com',
+            'username': 'jean_welcome',
             'password1': 'Testpassword123',
             'password2': 'Testpassword123',
         }
 
-    # Vérifie qu'un email est envoyé après inscription
-    def test_activation_email_sent(self):
+    # Vérifie qu'un email de bienvenue est envoyé
+    def test_welcome_email_sent(self):
         self.client.post(self.register_url, self.valid_data)
 
         self.assertEqual(len(mail.outbox), 1)
-        self.assertIn("Activation", mail.outbox[0].subject)
 
-    # Vérifie que le lien d'activation fonctionne
-    def test_activation_link_valid(self):
+    # Vérifie le sujet de l'email
+    def test_welcome_email_subject(self):
         self.client.post(self.register_url, self.valid_data)
 
-        user = User.objects.get(username='jean_activation')
+        self.assertIn("Bienvenue", mail.outbox[0].subject)
 
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
-
-        activation_url = reverse('activate_account', kwargs={
-            'uidb64': uid,
-            'token': token
-        })
-
-        response = self.client.get(activation_url, follow=True)
-
-        self.assertEqual(response.status_code, 200)
-
-        messages = list(get_messages(response.wsgi_request))
-        self.assertTrue(any("activé" in str(m) for m in messages))
-
-    # Vérifie qu'un token invalide échoue
-    def test_activation_link_invalid(self):
+    # Vérifie le destinataire
+    def test_welcome_email_recipient(self):
         self.client.post(self.register_url, self.valid_data)
 
-        user = User.objects.get(username='jean_activation')
+        self.assertEqual(mail.outbox[0].to, ['jean_welcome@example.com'])
 
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
+    # Vérifie le contenu du message
+    def test_welcome_email_content(self):
+        self.client.post(self.register_url, self.valid_data)
 
-        activation_url = reverse('activate_account', kwargs={
-            'uidb64': uid,
-            'token': 'invalid-token'
-        })
-
-        response = self.client.get(activation_url)
-
-        self.assertEqual(response.status_code, 200)
+        self.assertIn("Jean", mail.outbox[0].body)
+        self.assertIn("compte a bien été créé", mail.outbox[0].body)
