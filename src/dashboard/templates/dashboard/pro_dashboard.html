@@ -7,7 +7,7 @@
 <p>Bonjour {{ user.first_name }}</p>
 
 <ul>
-    <li><a href="#">Gestion des véhicules</a></li>
+    <li><a href="{% url 'create_vehicle' %}">Ajouter un véhicule</a></li>
     <li><a href="#">Gestion des dossiers clients</a></li>
 </ul>
 {% endblock %}
