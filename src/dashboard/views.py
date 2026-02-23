@@ -4,13 +4,13 @@ from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 
 from .forms import VehicleForm
+from vehicles.models import VehicleImage
 
 
 @login_required
 def pro_dashboard(request):
     """
     Dashboard réservé aux utilisateurs avec le rôle 'pro'.
-
     """
     if request.user.profile.role != "pro":
         raise PermissionDenied
@@ -22,15 +22,25 @@ def pro_dashboard(request):
 def create_vehicle(request):
     """
     Permet à un utilisateur 'pro' d'ajouter un véhicule en base.
-
     """
     if request.user.profile.role != "pro":
         raise PermissionDenied
 
     if request.method == "POST":
-        form = VehicleForm(request.POST)
+        # ⚠️ IMPORTANT : ajouter request.FILES
+        form = VehicleForm(request.POST, request.FILES)
+
         if form.is_valid():
-            form.save()
+            vehicle = form.save()
+
+            # 🔹 Gestion des images secondaires
+            secondary_images = request.FILES.getlist("secondary_images")
+            for image in secondary_images:
+                VehicleImage.objects.create(
+                    vehicle=vehicle,
+                    image=image
+                )
+
             messages.success(request, "Véhicule ajouté avec succès.")
             return redirect("pro_dashboard")
     else:

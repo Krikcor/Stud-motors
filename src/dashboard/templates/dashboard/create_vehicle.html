@@ -5,9 +5,13 @@
 {% block content %}
 <h1>Ajouter un véhicule</h1>
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
+
     {{ form.as_p }}
+
+    <input type="file" name="secondary_images" multiple>
+
     <button type="submit">Enregistrer</button>
 </form>
 

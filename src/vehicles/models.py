@@ -28,7 +28,29 @@ class Vehicle(models.Model):
         decimal_places=2
     )
 
+    main_image = models.ImageField(
+        upload_to="vehicles/main/",
+        null=True,
+        blank=True
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.brand} {self.model} ({self.year})"
+
+
+class VehicleImage(models.Model):
+
+    vehicle = models.ForeignKey(
+        Vehicle,
+        on_delete=models.CASCADE,
+        related_name="images"
+    )
+
+    image = models.ImageField(
+        upload_to="vehicles/secondary/"
+    )
+
+    def __str__(self):
+        return f"Image for {self.vehicle}"

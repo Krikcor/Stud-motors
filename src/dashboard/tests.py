@@ -5,6 +5,23 @@ from django.contrib.auth.models import User
 from vehicles.models import Vehicle
 from accounts.models import Profile
 
+# 🔽 AJOUTS POUR LES TESTS D’IMAGES
+from io import BytesIO
+from PIL import Image
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+
+def generate_test_image():
+    file = BytesIO()
+    image = Image.new("RGB", (100, 100), "white")
+    image.save(file, "JPEG")
+    file.seek(0)
+    return SimpleUploadedFile(
+        "test.jpg",
+        file.read(),
+        content_type="image/jpeg"
+    )
+
 
 class CreateVehicleTests(TestCase):
 
@@ -76,3 +93,40 @@ class CreateVehicleTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Vehicle.objects.count(), 0)
+
+
+# 🔽 NOUVELLE CLASSE POUR LES TESTS D’UPLOAD
+class VehicleImageUploadTests(CreateVehicleTests):
+
+    def test_upload_main_image(self):
+        self.client.login(username="pro_user", password="Testpassword123")
+
+        main_image = generate_test_image()
+
+        data = self.valid_data.copy()
+        data["main_image"] = main_image
+
+        response = self.client.post(self.url, data, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Vehicle.objects.count(), 1)
+
+        vehicle = Vehicle.objects.first()
+        self.assertTrue(vehicle.main_image.name.endswith(".jpg"))
+
+    def test_upload_secondary_images(self):
+        self.client.login(username="pro_user", password="Testpassword123")
+
+        sec1 = generate_test_image()
+        sec2 = generate_test_image()
+
+        data = self.valid_data.copy()
+        data["secondary_images"] = [sec1, sec2]
+
+        response = self.client.post(self.url, data, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Vehicle.objects.count(), 1)
+
+        vehicle = Vehicle.objects.first()
+        self.assertEqual(vehicle.images.count(), 2)

@@ -4,6 +4,8 @@ from vehicles.models import Vehicle
 
 class VehicleForm(forms.ModelForm):
 
+    secondary_images = forms.FileField(required=False)
+
     class Meta:
         model = Vehicle
         fields = [
@@ -15,6 +17,7 @@ class VehicleForm(forms.ModelForm):
             'mileage',
             'vehicle_type',
             'price',
+            'main_image',
         ]
 
         widgets = {
