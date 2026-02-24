@@ -10,6 +10,15 @@
     <li><a href="{% url 'create_vehicle' %}">Ajouter un véhicule</a></li>
     <li><a href="{% url 'modify_vehicle' %}">Modifier un véhicule</a></li>
     <li><a href="{% url 'delete_vehicle' %}">Supprimer un véhicule</a></li>
+    <li><a href="{% url 'list_vehicle' %}">Voir les véhicules</a></li>
     <li><a href="#">Gestion des dossiers clients</a></li>
 </ul>
+
+<hr>
+
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Se déconnecter</button>
+</form>
+
 {% endblock %}

@@ -9,6 +9,10 @@ from vehicles.models import VehicleImage
 from django.http import HttpResponseForbidden
 from vehicles.models import Vehicle
 
+from django.shortcuts import render
+
+
+
 @login_required
 def pro_dashboard(request):
     """
@@ -132,3 +136,16 @@ def modify_vehicle(request):
         return redirect("pro_dashboard")
 
     return render(request, "dashboard/modif_vehicle.html")
+
+
+@login_required
+def list_vehicle(request):
+
+    if request.user.profile.role != "pro":
+        return HttpResponseForbidden()
+
+    vehicles = Vehicle.objects.all().order_by("-created_at")
+
+    return render(request, "dashboard/list_vehicle.html", {
+        "vehicles": vehicles
+    })

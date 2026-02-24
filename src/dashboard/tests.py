@@ -11,7 +11,6 @@ from PIL import Image
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
-
 def generate_test_image():
     file = BytesIO()
     image = Image.new("RGB", (100, 100), "white")
@@ -22,6 +21,14 @@ def generate_test_image():
         file.read(),
         content_type="image/jpeg"
     )
+
+
+#TEST LOGOUT
+
+def test_logout(self):
+    self.client.login(username="pro", password="testpass123")
+    response = self.client.post(reverse("logout"))
+    self.assertEqual(response.status_code, 302)
 
 #CLASSE TEST CREATION VEHICULES
 
@@ -134,7 +141,7 @@ class VehicleImageUploadTests(CreateVehicleTests):
         self.assertEqual(vehicle.images.count(), 2)
 
 
-# NOUVELLE CLASSE POUR TESTS SUPPRESSION
+# CLASSE POUR TESTS SUPPRESSION
 class DeleteVehicleTests(TestCase):
 
     def setUp(self):
@@ -218,6 +225,7 @@ class DeleteVehicleTests(TestCase):
         self.assertContains(response, "Véhicule introuvable.")
         self.assertEqual(Vehicle.objects.count(), 1)
 
+#CLASSE TESTS MODIFICATIONS
 class ModifyVehicleTests(TestCase):
 
     def setUp(self):
@@ -308,3 +316,73 @@ class ModifyVehicleTests(TestCase):
         self.assertEqual(self.vehicle.price, 65000)
         self.assertEqual(response.status_code, 302)
 
+#CLASSE TESTS TABLEAU
+
+class ListVehicleTests(TestCase):
+
+    def setUp(self):
+        # Création utilisateur pro
+        self.pro_user = User.objects.create_user(
+            username="pro_list",
+            password="testpass123"
+        )
+        Profile.objects.create(user=self.pro_user, role="pro")
+
+        # Création utilisateur client
+        self.client_user = User.objects.create_user(
+            username="client_list",
+            password="testpass123"
+        )
+        Profile.objects.create(user=self.client_user, role="client")
+
+        # Création de 2 véhicules
+        Vehicle.objects.create(
+            brand="BMW",
+            model="X5",
+            engine="3.0L",
+            year=2021,
+            color="Noir",
+            mileage=15000,
+            vehicle_type="purchase",
+            price=60000
+        )
+
+        Vehicle.objects.create(
+            brand="Audi",
+            model="A3",
+            engine="2.0L",
+            year=2019,
+            color="Blanc",
+            mileage=30000,
+            vehicle_type="rental",
+            price=25000
+        )
+
+    def test_pro_can_access_list(self):
+        self.client.login(username="pro_list", password="testpass123")
+        response = self.client.get(reverse("list_vehicle"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_client_cannot_access_list(self):
+        self.client.login(username="client_list", password="testpass123")
+        response = self.client.get(reverse("list_vehicle"))
+        self.assertEqual(response.status_code, 403)
+
+    def test_anonymous_redirected(self):
+        response = self.client.get(reverse("list_vehicle"))
+        self.assertEqual(response.status_code, 302)
+
+    def test_vehicles_in_context(self):
+        self.client.login(username="pro_list", password="testpass123")
+        response = self.client.get(reverse("list_vehicle"))
+
+        self.assertEqual(len(response.context["vehicles"]), 2)
+
+    def test_vehicle_data_displayed(self):
+        self.client.login(username="pro_list", password="testpass123")
+        response = self.client.get(reverse("list_vehicle"))
+
+        self.assertContains(response, "BMW")
+        self.assertContains(response, "Audi")
+        self.assertContains(response, "X5")
+        self.assertContains(response, "A3")

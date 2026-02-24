@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Liste des véhicules{% endblock %}
+
+{% block content %}
+
+<h1>Liste des véhicules</h1>
+
+{% if vehicles %}
+<table border="1" cellpadding="8" style="border-collapse: collapse; width:100%;">
+    <thead>
+        <tr style="background-color:#f2f2f2;">
+            <th>ID</th>
+            <th>Marque</th>
+            <th>Modèle</th>
+            <th>Année</th>
+            <th>Type</th>
+            <th>Kilométrage</th>
+            <th>Prix (€)</th>
+            <th>Créé le</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for vehicle in vehicles %}
+        <tr>
+            <td>{{ vehicle.id }}</td>
+            <td>{{ vehicle.brand }}</td>
+            <td>{{ vehicle.model }}</td>
+            <td>{{ vehicle.year }}</td>
+            <td>{{ vehicle.get_vehicle_type_display }}</td>
+            <td>{{ vehicle.mileage }} km</td>
+            <td>{{ vehicle.price }}</td>
+            <td>{{ vehicle.created_at|date:"d/m/Y" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Aucun véhicule enregistré.</p>
+{% endif %}
+
+<br>
+<a href="{% url 'pro_dashboard' %}">Retour au dashboard</a>
+
+{% endblock %}
