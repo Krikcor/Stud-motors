@@ -1,8 +1,31 @@
 {% extends "base.html" %}
 
-{% block title %}Véhicules - M-Motors{% endblock %}
+{% block title %}Véhicules{% endblock %}
 
 {% block content %}
-<h1>Liste des véhicules</h1>
+
+<h1>Nos véhicules</h1>
+
+<div style="display:flex; flex-wrap:wrap; gap:20px;">
+
+{% for vehicle in vehicles %}
+    <div style="width:300px; border:1px solid #ddd; border-radius:10px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+
+        <a href="{% url 'vehicle_detail' vehicle.id %}" style="text-decoration:none; color:white;">
+
+            <img src="{{ vehicle.main_image.url }}" style="width:100%; height:200px; object-fit:cover;">
+
+            <div style="padding:15px;">
+                <h3>{{ vehicle.brand }} {{ vehicle.model }}</h3>
+                <p>{{ vehicle.year }} • {{ vehicle.mileage }} km</p>
+                <p><strong>{{ vehicle.price }} €</strong></p>
+                <p>{{ vehicle.get_vehicle_type_display }}</p>
+            </div>
+
+        </a>
+    </div>
+{% endfor %}
+
+</div>
 
 {% endblock %}
