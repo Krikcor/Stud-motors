@@ -11,6 +11,8 @@ from PIL import Image
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
+
+
 def generate_test_image():
     file = BytesIO()
     image = Image.new("RGB", (100, 100), "white")
@@ -130,3 +132,87 @@ class VehicleImageUploadTests(CreateVehicleTests):
 
         vehicle = Vehicle.objects.first()
         self.assertEqual(vehicle.images.count(), 2)
+
+
+class DeleteVehicleTests(TestCase):
+
+    def setUp(self):
+        self.url = reverse("delete_vehicle")
+
+        # PRO
+        self.pro_user = User.objects.create_user(
+            username="pro_user_del",
+            password="Testpassword123"
+        )
+        Profile.objects.create(user=self.pro_user, role="pro")
+
+        # CLIENT
+        self.client_user = User.objects.create_user(
+            username="client_user_del",
+            password="Testpassword123"
+        )
+        Profile.objects.create(user=self.client_user, role="client")
+
+        # Véhicule existant
+        self.vehicle = Vehicle.objects.create(
+            brand="Audi",
+            model="A3",
+            engine="2.0 TDI",
+            year=2021,
+            color="Blanc",
+            mileage=20000,
+            vehicle_type="purchase",
+            price=22000.00
+        )
+
+    # Un pro peut supprimer
+    def test_pro_can_delete_vehicle(self):
+        self.client.login(username="pro_user_del", password="Testpassword123")
+
+        # Étape 1 : soumission de l'id
+        response = self.client.post(self.url, {
+            "vehicle_id": self.vehicle.id
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Confirmer la suppression")
+
+        # Étape 2 : confirmation
+        response = self.client.post(self.url, {
+            "confirm_delete": self.vehicle.id
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Vehicle.objects.count(), 0)
+
+    # Un client ne peut pas supprimer
+    def test_client_cannot_delete_vehicle(self):
+        self.client.login(username="client_user_del", password="Testpassword123")
+
+        response = self.client.post(self.url, {
+            "vehicle_id": self.vehicle.id
+        })
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Vehicle.objects.count(), 1)
+
+    # Un utilisateur non connecté est redirigé
+    def test_anonymous_user_redirected(self):
+        response = self.client.post(self.url, {
+            "vehicle_id": self.vehicle.id
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Vehicle.objects.count(), 1)
+
+    # ID invalide
+    def test_invalid_vehicle_id(self):
+        self.client.login(username="pro_user_del", password="Testpassword123")
+
+        response = self.client.post(self.url, {
+            "vehicle_id": 9999
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Véhicule introuvable.")
+        self.assertEqual(Vehicle.objects.count(), 1)

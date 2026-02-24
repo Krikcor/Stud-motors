@@ -1,0 +1,15 @@
+<h2>Confirmer la suppression</h2>
+
+<p>
+    Voulez-vous vraiment supprimer
+    {{ vehicle.brand }} {{ vehicle.model }}
+    (ID: {{ vehicle.id }}) ?
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="confirm_delete" value="{{ vehicle.id }}">
+    <button type="submit">Oui, supprimer</button>
+</form>
+
+<a href="{% url 'pro_dashboard' %}">Annuler</a>
