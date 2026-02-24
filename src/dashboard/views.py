@@ -9,7 +9,6 @@ from vehicles.models import VehicleImage
 from django.http import HttpResponseForbidden
 from vehicles.models import Vehicle
 
-
 @login_required
 def pro_dashboard(request):
     """
@@ -90,3 +89,46 @@ def delete_vehicle(request):
         return redirect("pro_dashboard")
 
     return render(request, "dashboard/delete_vehicle.html")
+
+
+
+
+@login_required
+def modify_vehicle(request):
+
+    if request.user.profile.role != "pro":
+        return HttpResponseForbidden()
+
+    # Recherche par ID
+    if request.method == "POST" and "vehicle_id" in request.POST:
+        vehicle_id = request.POST.get("vehicle_id")
+
+        try:
+            vehicle = Vehicle.objects.get(id=vehicle_id)
+            return render(request, "dashboard/modif_vehicle.html", {
+                "vehicle": vehicle
+            })
+        except Vehicle.DoesNotExist:
+            return render(request, "dashboard/modif_vehicle.html", {
+                "error": "Véhicule introuvable."
+            })
+
+    # Sauvegarde des modifications
+    if request.method == "POST" and "save_modifications" in request.POST:
+        vehicle_id = request.POST.get("save_modifications")
+        vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+
+        vehicle.brand = request.POST.get("brand")
+        vehicle.model = request.POST.get("model")
+        vehicle.engine = request.POST.get("engine")
+        vehicle.year = request.POST.get("year")
+        vehicle.color = request.POST.get("color")
+        vehicle.mileage = request.POST.get("mileage")
+        vehicle.vehicle_type = request.POST.get("vehicle_type")
+        vehicle.price = request.POST.get("price")
+
+        vehicle.save()
+
+        return redirect("pro_dashboard")
+
+    return render(request, "dashboard/modif_vehicle.html")

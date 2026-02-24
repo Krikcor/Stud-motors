@@ -5,11 +5,10 @@ from django.contrib.auth.models import User
 from vehicles.models import Vehicle
 from accounts.models import Profile
 
-# 🔽 AJOUTS POUR LES TESTS D’IMAGES
+# AJOUTS POUR LES TESTS D’IMAGES
 from io import BytesIO
 from PIL import Image
 from django.core.files.uploadedfile import SimpleUploadedFile
-
 
 
 
@@ -24,6 +23,7 @@ def generate_test_image():
         content_type="image/jpeg"
     )
 
+#CLASSE TEST CREATION VEHICULES
 
 class CreateVehicleTests(TestCase):
 
@@ -97,7 +97,7 @@ class CreateVehicleTests(TestCase):
         self.assertEqual(Vehicle.objects.count(), 0)
 
 
-# 🔽 NOUVELLE CLASSE POUR LES TESTS D’UPLOAD
+# NOUVELLE CLASSE POUR LES TESTS D’UPLOAD D IMAGES
 class VehicleImageUploadTests(CreateVehicleTests):
 
     def test_upload_main_image(self):
@@ -134,6 +134,7 @@ class VehicleImageUploadTests(CreateVehicleTests):
         self.assertEqual(vehicle.images.count(), 2)
 
 
+# NOUVELLE CLASSE POUR TESTS SUPPRESSION
 class DeleteVehicleTests(TestCase):
 
     def setUp(self):
@@ -216,3 +217,94 @@ class DeleteVehicleTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Véhicule introuvable.")
         self.assertEqual(Vehicle.objects.count(), 1)
+
+class ModifyVehicleTests(TestCase):
+
+    def setUp(self):
+        # Création d’un utilisateur pro
+        self.pro_user = User.objects.create_user(
+            username="pro",
+            password="testpass123"
+        )
+        Profile.objects.create(user=self.pro_user, role="pro")
+
+        # Création d’un client
+        self.client_user = User.objects.create_user(
+            username="client",
+            password="testpass123"
+        )
+        Profile.objects.create(user=self.client_user, role="client")
+
+        # Création d’un véhicule
+        self.vehicle = Vehicle.objects.create(
+            brand="BMW",
+            model="M3",
+            engine="3.0L",
+            year=2020,
+            color="Noir",
+            mileage=20000,
+            vehicle_type="purchase",
+            price=55000
+        )
+
+    # Un pro peut accéder
+    def test_pro_can_access_modify_page(self):
+        self.client.login(username="pro", password="testpass123")
+        response = self.client.get(reverse("modify_vehicle"))
+        self.assertEqual(response.status_code, 200)
+
+    # Un client ne peut pas accéder
+    def test_client_cannot_access_modify_page(self):
+        self.client.login(username="client", password="testpass123")
+        response = self.client.get(reverse("modify_vehicle"))
+        self.assertEqual(response.status_code, 403)
+
+    #Utilisateur non connecté
+    def test_anonymous_user_redirected(self):
+        response = self.client.get(reverse("modify_vehicle"))
+        self.assertEqual(response.status_code, 302)  # redirection login
+
+    #Recherche d’un véhicule existant
+    def test_search_existing_vehicle(self):
+        self.client.login(username="pro", password="testpass123")
+
+        response = self.client.post(reverse("modify_vehicle"), {
+            "vehicle_id": self.vehicle.id
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "BMW")
+
+    # Recherche d’un ID inexistant
+    def test_search_non_existing_vehicle(self):
+        self.client.login(username="pro", password="testpass123")
+
+        response = self.client.post(reverse("modify_vehicle"), {
+            "vehicle_id": 9999
+        })
+
+        self.assertContains(response, "Véhicule introuvable")
+
+    # Modification réussie
+    def test_modify_vehicle_success(self):
+        self.client.login(username="pro", password="testpass123")
+
+        response = self.client.post(reverse("modify_vehicle"), {
+            "save_modifications": self.vehicle.id,
+            "brand": "Audi",
+            "model": "RS5",
+            "engine": "2.9L",
+            "year": 2022,
+            "color": "Rouge",
+            "mileage": 10000,
+            "vehicle_type": "purchase",
+            "price": 65000
+        })
+
+        self.vehicle.refresh_from_db()
+
+        self.assertEqual(self.vehicle.brand, "Audi")
+        self.assertEqual(self.vehicle.model, "RS5")
+        self.assertEqual(self.vehicle.price, 65000)
+        self.assertEqual(response.status_code, 302)
+

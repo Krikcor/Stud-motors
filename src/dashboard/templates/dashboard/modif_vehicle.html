@@ -1,0 +1,54 @@
+<h2>Modifier un véhicule</h2>
+
+{% if error %}
+    <p style="color:red;">{{ error }}</p>
+{% endif %}
+
+<!-- Étape 1 : recherche -->
+{% if not vehicle %}
+<form method="post">
+    {% csrf_token %}
+    <label for="vehicle_id">ID du véhicule :</label>
+    <input type="number" id="vehicle_id" name="vehicle_id" required>
+    <button type="submit">Rechercher</button>
+</form>
+{% endif %}
+
+<!-- Étape 2 : formulaire de modification -->
+{% if vehicle %}
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="save_modifications" value="{{ vehicle.id }}">
+
+    <label>Marque :</label>
+    <input type="text" name="brand" value="{{ vehicle.brand }}" required>
+
+    <label>Modèle :</label>
+    <input type="text" name="model" value="{{ vehicle.model }}" required>
+
+    <label>Moteur :</label>
+    <input type="text" name="engine" value="{{ vehicle.engine }}" required>
+
+    <label>Année :</label>
+    <input type="number" name="year" value="{{ vehicle.year }}" required>
+
+    <label>Couleur :</label>
+    <input type="text" name="color" value="{{ vehicle.color }}" required>
+
+    <label>Kilométrage :</label>
+    <input type="number" name="mileage" value="{{ vehicle.mileage }}" required>
+
+    <label>Type :</label>
+    <select name="vehicle_type" required>
+        <option value="purchase" {% if vehicle.vehicle_type == "purchase" %}selected{% endif %}>Achat</option>
+        <option value="rental" {% if vehicle.vehicle_type == "rental" %}selected{% endif %}>Location</option>
+    </select>
+
+    <label>Prix :</label>
+    <input type="number" step="0.01" name="price" value="{{ vehicle.price }}" required>
+
+    <button type="submit">Enregistrer les modifications</button>
+</form>
+{% endif %}
+
+<a href="{% url 'pro_dashboard' %}">Retour</a>
