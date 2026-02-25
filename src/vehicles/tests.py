@@ -1,13 +1,13 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
+from decimal import Decimal
 from .models import Vehicle
 
 
 class VehicleViewsTests(TestCase):
 
     def setUp(self):
-        # Création d’un véhicule
         self.vehicle = Vehicle.objects.create(
             brand="BMW",
             model="M4",
@@ -19,7 +19,6 @@ class VehicleViewsTests(TestCase):
             price=70000
         )
 
-        # Création utilisateur
         self.user = User.objects.create_user(
             username="testuser",
             password="testpass123"
@@ -68,7 +67,6 @@ class VehicleViewsTests(TestCase):
         response = self.client.get(
             reverse("vehicle_detail", args=[self.vehicle.id])
         )
-
         self.assertContains(response, "login")
 
     def test_reserve_button_visible_if_authenticated(self):
@@ -77,23 +75,18 @@ class VehicleViewsTests(TestCase):
         response = self.client.get(
             reverse("vehicle_detail", args=[self.vehicle.id])
         )
-
         self.assertContains(response, "Réserver")
-
-
-from django.test import TestCase
-from django.urls import reverse
-from .models import Vehicle
 
 
 class VehicleFilterTests(TestCase):
 
     def setUp(self):
-        # Véhicules
         self.v1 = Vehicle.objects.create(
             brand="BMW",
             model="Serie 1",
+            engine="2.0",
             year=2020,
+            color="Noir",
             mileage=50000,
             price=20000,
             vehicle_type="purchase"
@@ -102,7 +95,9 @@ class VehicleFilterTests(TestCase):
         self.v2 = Vehicle.objects.create(
             brand="Yamaha",
             model="MT-07",
+            engine="700cc",
             year=2022,
+            color="Bleu",
             mileage=10000,
             price=7500,
             vehicle_type="rental"
@@ -111,30 +106,28 @@ class VehicleFilterTests(TestCase):
         self.v3 = Vehicle.objects.create(
             brand="Audi",
             model="A4",
+            engine="2.0",
             year=2018,
+            color="Gris",
             mileage=80000,
             price=15000,
             vehicle_type="purchase"
         )
 
-    # Test filtre par type
+    # Filtre par type
 
     def test_filter_by_vehicle_type(self):
         response = self.client.get(
             reverse("vehicle_list"),
-            {"vehicle_type": "purchase"}  # valeur correcte du model
+            {"vehicle_type": "purchase"}
         )
 
         self.assertEqual(response.status_code, 200)
-
-        # Doit apparaître (purchase)
         self.assertContains(response, "BMW")
         self.assertContains(response, "Audi")
-
-        # Ne doit pas apparaître (rental)
         self.assertNotContains(response, "Yamaha")
 
-    # Test filtre par année
+    # Filtre par année
 
     def test_filter_by_year(self):
         response = self.client.get(
@@ -146,7 +139,7 @@ class VehicleFilterTests(TestCase):
         self.assertNotContains(response, "BMW")
         self.assertNotContains(response, "Audi")
 
-    # Test prix minimum
+    # Prix minimum
 
     def test_filter_by_min_price(self):
         response = self.client.get(
@@ -158,7 +151,7 @@ class VehicleFilterTests(TestCase):
         self.assertNotContains(response, "Audi")
         self.assertNotContains(response, "Yamaha")
 
-    # Test prix maximum
+    # Prix maximum
 
     def test_filter_by_max_price(self):
         response = self.client.get(
@@ -170,12 +163,13 @@ class VehicleFilterTests(TestCase):
         self.assertContains(response, "Yamaha")
         self.assertNotContains(response, "BMW")
 
-    # Test combinaison filtres
+    # Combinaison filtres
+
     def test_filter_combination(self):
         response = self.client.get(
             reverse("vehicle_list"),
             {
-                "vehicle_type": "car",
+                "vehicle_type": "purchase",
                 "min_price": 18000
             }
         )
@@ -183,3 +177,92 @@ class VehicleFilterTests(TestCase):
         self.assertContains(response, "BMW")
         self.assertNotContains(response, "Audi")
         self.assertNotContains(response, "Yamaha")
+
+    # Tri croissant
+
+    def test_order_by_price_ascending(self):
+        response = self.client.get(
+            reverse("vehicle_list"),
+            {"order_by": "price"}
+        )
+
+        page = response.context["vehicles"]
+        prices = [v.price for v in page]
+
+        self.assertEqual(prices, sorted(prices))
+
+    # Tri décroissant
+
+    def test_order_by_price_descending(self):
+        response = self.client.get(
+            reverse("vehicle_list"),
+            {"order_by": "-price"}
+        )
+
+        page = response.context["vehicles"]
+        prices = [v.price for v in page]
+
+        self.assertEqual(prices, sorted(prices, reverse=True))
+
+
+class VehicleOrderingTests(TestCase):
+
+    def setUp(self):
+        self.v1 = Vehicle.objects.create(
+            brand="BMW",
+            model="X1",
+            engine="2.0",
+            year=2020,
+            color="Noir",
+            mileage=20000,
+            vehicle_type=Vehicle.PURCHASE,
+            price=Decimal("20000.00")
+        )
+
+        self.v2 = Vehicle.objects.create(
+            brand="Audi",
+            model="A3",
+            engine="1.8",
+            year=2019,
+            color="Blanc",
+            mileage=30000,
+            vehicle_type=Vehicle.PURCHASE,
+            price=Decimal("15000.00")
+        )
+
+        self.v3 = Vehicle.objects.create(
+            brand="Mercedes",
+            model="A180",
+            engine="1.6",
+            year=2021,
+            color="Gris",
+            mileage=10000,
+            vehicle_type=Vehicle.PURCHASE,
+            price=Decimal("25000.00")
+        )
+
+    def test_order_by_price_ascending(self):
+        response = self.client.get(
+            reverse("vehicle_list"),
+            {"order_by": "price"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        page = response.context["vehicles"]
+        prices = [vehicle.price for vehicle in page]
+
+        self.assertEqual(prices, sorted(prices))
+
+    def test_order_by_price_descending(self):
+        response = self.client.get(
+            reverse("vehicle_list"),
+            {"order_by": "-price"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        page = response.context["vehicles"]
+        prices = [vehicle.price for vehicle in page]
+
+        self.assertEqual(prices, sorted(prices, reverse=True))

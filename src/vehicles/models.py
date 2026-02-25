@@ -1,6 +1,9 @@
 from django.db import models
 
 
+from django.db import models
+
+
 class Vehicle(models.Model):
 
     PURCHASE = 'purchase'
@@ -14,18 +17,21 @@ class Vehicle(models.Model):
     brand = models.CharField(max_length=100)
     model = models.CharField(max_length=100)
     engine = models.CharField(max_length=100)
-    year = models.PositiveIntegerField()
+
+    year = models.PositiveIntegerField(db_index=True)
     color = models.CharField(max_length=50)
     mileage = models.PositiveIntegerField()
 
     vehicle_type = models.CharField(
         max_length=20,
-        choices=VEHICLE_TYPE_CHOICES
+        choices=VEHICLE_TYPE_CHOICES,
+        db_index=True
     )
 
     price = models.DecimalField(
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        db_index=True
     )
 
     main_image = models.ImageField(
@@ -36,9 +42,11 @@ class Vehicle(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-created_at"]  # Important pour pagination stable
+
     def __str__(self):
         return f"{self.brand} {self.model} ({self.year})"
-
 
 class VehicleImage(models.Model):
 
