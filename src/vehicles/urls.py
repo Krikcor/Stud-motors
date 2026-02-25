@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     path("", views.vehicle_list, name="vehicle_list"),
-    path("<int:pk>/", views.vehicle_detail, name="vehicle_detail"),
+    path("<slug:slug>/", views.vehicle_detail, name="vehicle_detail"),  # on passe au slug
 ]

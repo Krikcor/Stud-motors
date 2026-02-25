@@ -43,7 +43,7 @@ class VehicleViewsTests(TestCase):
 
     def test_vehicle_detail_page_status(self):
         response = self.client.get(
-            reverse("vehicle_detail", args=[self.vehicle.id])
+            reverse("vehicle_detail", args=[self.vehicle.slug])
         )
         self.assertEqual(response.status_code, 200)
 
@@ -55,7 +55,7 @@ class VehicleViewsTests(TestCase):
 
     def test_vehicle_detail_contains_data(self):
         response = self.client.get(
-            reverse("vehicle_detail", args=[self.vehicle.id])
+            reverse("vehicle_detail", args=[self.vehicle.slug])
         )
         self.assertContains(response, "BMW")
         self.assertContains(response, "M4")
@@ -65,7 +65,7 @@ class VehicleViewsTests(TestCase):
 
     def test_reserve_button_redirects_to_login_if_not_authenticated(self):
         response = self.client.get(
-            reverse("vehicle_detail", args=[self.vehicle.id])
+            reverse("vehicle_detail", args=[self.vehicle.slug])
         )
         self.assertContains(response, "login")
 
@@ -73,7 +73,7 @@ class VehicleViewsTests(TestCase):
         self.client.login(username="testuser", password="testpass123")
 
         response = self.client.get(
-            reverse("vehicle_detail", args=[self.vehicle.id])
+            reverse("vehicle_detail", args=[self.vehicle.slug])
         )
         self.assertContains(response, "Réserver")
 
@@ -266,3 +266,123 @@ class VehicleOrderingTests(TestCase):
         prices = [vehicle.price for vehicle in page]
 
         self.assertEqual(prices, sorted(prices, reverse=True))
+
+
+class VehicleSlugTests(TestCase):
+
+    def test_slug_is_created_on_save(self):
+        vehicle = Vehicle.objects.create(
+            brand="BMW",
+            model="M3",
+            engine="3.0",
+            year=2023,
+            color="Noir",
+            mileage=5000,
+            vehicle_type="purchase",
+            price=80000
+        )
+
+        self.assertIsNotNone(vehicle.slug)
+        self.assertNotEqual(vehicle.slug, "")
+
+    def test_vehicle_detail_accessible_with_slug(self):
+        vehicle = Vehicle.objects.create(
+            brand="Audi",
+            model="RS3",
+            engine="2.5",
+            year=2022,
+            color="Rouge",
+            mileage=10000,
+            vehicle_type="purchase",
+            price=60000
+        )
+
+        response = self.client.get(
+            reverse("vehicle_detail", args=[vehicle.slug])
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    class VehicleStatusTests(TestCase):
+
+        def test_sold_vehicle_not_visible_in_list(self):
+            Vehicle.objects.create(
+                brand="BMW",
+                model="X5",
+                engine="3.0",
+                year=2020,
+                color="Noir",
+                mileage=40000,
+                vehicle_type="purchase",
+                price=30000,
+                status=Vehicle.SOLD
+            )
+
+            response = self.client.get(reverse("vehicle_list"))
+
+            self.assertNotContains(response, "X5")
+
+    def test_sold_vehicle_returns_404_on_detail(self):
+        vehicle = Vehicle.objects.create(
+            brand="Audi",
+            model="A6",
+            engine="2.0",
+            year=2019,
+            color="Gris",
+            mileage=60000,
+            vehicle_type="purchase",
+            price=25000,
+            status=Vehicle.SOLD
+        )
+
+        response = self.client.get(
+            reverse("vehicle_detail", args=[vehicle.slug])
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+class VehicleViewsCounterTests(TestCase):
+
+    def test_vehicle_views_increment(self):
+        vehicle = Vehicle.objects.create(
+            brand="Mercedes",
+            model="C63",
+            engine="4.0",
+            year=2021,
+            color="Noir",
+            mileage=15000,
+            vehicle_type="purchase",
+            price=70000
+        )
+
+        initial_views = vehicle.views
+
+        self.client.get(
+            reverse("vehicle_detail", args=[vehicle.slug])
+        )
+
+        vehicle.refresh_from_db()
+
+        self.assertEqual(vehicle.views, initial_views + 1)
+
+class VehicleContextTests(TestCase):
+
+    def test_reserved_flag_in_context(self):
+        vehicle = Vehicle.objects.create(
+            brand="BMW",
+            model="M2",
+            engine="3.0",
+            year=2022,
+            color="Bleu",
+            mileage=8000,
+            vehicle_type="purchase",
+            price=55000,
+            status=Vehicle.RESERVED
+        )
+
+        response = self.client.get(
+            reverse("vehicle_detail", args=[vehicle.slug])
+        )
+
+        self.assertTrue(response.context["is_reserved"])
+        self.assertFalse(response.context["is_available"])
