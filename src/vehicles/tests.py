@@ -79,3 +79,107 @@ class VehicleViewsTests(TestCase):
         )
 
         self.assertContains(response, "Réserver")
+
+
+from django.test import TestCase
+from django.urls import reverse
+from .models import Vehicle
+
+
+class VehicleFilterTests(TestCase):
+
+    def setUp(self):
+        # Véhicules
+        self.v1 = Vehicle.objects.create(
+            brand="BMW",
+            model="Serie 1",
+            year=2020,
+            mileage=50000,
+            price=20000,
+            vehicle_type="purchase"
+        )
+
+        self.v2 = Vehicle.objects.create(
+            brand="Yamaha",
+            model="MT-07",
+            year=2022,
+            mileage=10000,
+            price=7500,
+            vehicle_type="rental"
+        )
+
+        self.v3 = Vehicle.objects.create(
+            brand="Audi",
+            model="A4",
+            year=2018,
+            mileage=80000,
+            price=15000,
+            vehicle_type="purchase"
+        )
+
+    # Test filtre par type
+
+    def test_filter_by_vehicle_type(self):
+        response = self.client.get(
+            reverse("vehicle_list"),
+            {"vehicle_type": "purchase"}  # valeur correcte du model
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Doit apparaître (purchase)
+        self.assertContains(response, "BMW")
+        self.assertContains(response, "Audi")
+
+        # Ne doit pas apparaître (rental)
+        self.assertNotContains(response, "Yamaha")
+
+    # Test filtre par année
+
+    def test_filter_by_year(self):
+        response = self.client.get(
+            reverse("vehicle_list"),
+            {"year": 2022}
+        )
+
+        self.assertContains(response, "Yamaha")
+        self.assertNotContains(response, "BMW")
+        self.assertNotContains(response, "Audi")
+
+    # Test prix minimum
+
+    def test_filter_by_min_price(self):
+        response = self.client.get(
+            reverse("vehicle_list"),
+            {"min_price": 16000}
+        )
+
+        self.assertContains(response, "BMW")
+        self.assertNotContains(response, "Audi")
+        self.assertNotContains(response, "Yamaha")
+
+    # Test prix maximum
+
+    def test_filter_by_max_price(self):
+        response = self.client.get(
+            reverse("vehicle_list"),
+            {"max_price": 16000}
+        )
+
+        self.assertContains(response, "Audi")
+        self.assertContains(response, "Yamaha")
+        self.assertNotContains(response, "BMW")
+
+    # Test combinaison filtres
+    def test_filter_combination(self):
+        response = self.client.get(
+            reverse("vehicle_list"),
+            {
+                "vehicle_type": "car",
+                "min_price": 18000
+            }
+        )
+
+        self.assertContains(response, "BMW")
+        self.assertNotContains(response, "Audi")
+        self.assertNotContains(response, "Yamaha")

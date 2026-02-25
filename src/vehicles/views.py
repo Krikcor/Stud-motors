@@ -1,13 +1,19 @@
 from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from .models import Vehicle
-from django.contrib.auth.decorators import login_required
-
+from .filters import VehicleFilter
 
 def vehicle_list(request):
-    vehicles = Vehicle.objects.all().order_by("-created_at")
-    return render(request, "vehicles/vehicle_list.html", {
-        "vehicles": vehicles
-    })
+    queryset = Vehicle.objects.all()
+
+    vehicle_filter = VehicleFilter(request.GET, queryset=queryset)
+
+    context = {
+        "filter": vehicle_filter,
+        "vehicles": vehicle_filter.qs,
+    }
+
+    return render(request, "vehicles/vehicle_list.html", context)
 
 
 def vehicle_detail(request, pk):

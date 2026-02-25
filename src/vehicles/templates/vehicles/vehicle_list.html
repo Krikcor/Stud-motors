@@ -6,16 +6,63 @@
 
 <h1>Nos véhicules</h1>
 
+<!-- FILTRES -->
+
+
+<div style="margin-bottom:40px; padding:20px; border:1px solid #ddd; border-radius:10px; background:#f9f9f9; color:black;">
+
+    <form method="get" style="display:flex; flex-wrap:wrap; gap:20px; align-items:end;">
+
+        <div>
+            <label>Type</label><br>
+            {{ filter.form.vehicle_type }}
+        </div>
+
+        <div>
+            <label>Année</label><br>
+            {{ filter.form.year }}
+        </div>
+
+        <div>
+            <label>Prix min</label><br>
+            {{ filter.form.min_price }}
+        </div>
+
+        <div>
+            <label>Prix max</label><br>
+            {{ filter.form.max_price }}
+        </div>
+
+        <div>
+            <button type="submit" style="padding:8px 15px; border:none; background:#222; color:white; border-radius:5px;">
+                Filtrer
+            </button>
+        </div>
+
+        <div>
+            <a href="{% url 'vehicle_list' %}" style="text-decoration:none; color:#666;">
+                Réinitialiser
+            </a>
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- LISTE VEHICULES -->
+
 <div style="display:flex; flex-wrap:wrap; gap:20px;">
 
 {% for vehicle in vehicles %}
     <div style="width:300px; border:1px solid #ddd; border-radius:10px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
 
-        <a href="{% url 'vehicle_detail' vehicle.id %}" style="text-decoration:none; color:white;">
+        <a href="{% url 'vehicle_detail' vehicle.id %}" style="text-decoration:none; color:inherit;">
 
             {% if vehicle.main_image %}
                 <img src="{{ vehicle.main_image.url }}" style="width:100%; height:200px; object-fit:cover;">
             {% endif %}
+
             <div style="padding:15px;">
                 <h3>{{ vehicle.brand }} {{ vehicle.model }}</h3>
                 <p>{{ vehicle.year }} • {{ vehicle.mileage }} km</p>
@@ -25,6 +72,8 @@
 
         </a>
     </div>
+{% empty %}
+    <p>Aucun véhicule ne correspond aux critères sélectionnés.</p>
 {% endfor %}
 
 </div>
