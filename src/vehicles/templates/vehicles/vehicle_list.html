@@ -13,8 +13,9 @@
 
         <a href="{% url 'vehicle_detail' vehicle.id %}" style="text-decoration:none; color:white;">
 
-            <img src="{{ vehicle.main_image.url }}" style="width:100%; height:200px; object-fit:cover;">
-
+            {% if vehicle.main_image %}
+                <img src="{{ vehicle.main_image.url }}" style="width:100%; height:200px; object-fit:cover;">
+            {% endif %}
             <div style="padding:15px;">
                 <h3>{{ vehicle.brand }} {{ vehicle.model }}</h3>
                 <p>{{ vehicle.year }} • {{ vehicle.mileage }} km</p>

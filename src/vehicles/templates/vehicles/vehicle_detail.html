@@ -7,15 +7,26 @@
 <h1>{{ vehicle.brand }} {{ vehicle.model }}</h1>
 
 <!-- Image principale -->
-<img src="{{ vehicle.main_image.url }}" style="width:500px; max-width:100%;">
+{% if vehicle.main_image %}
+    <img src="{{ vehicle.main_image.url }}"
+         alt="{{ vehicle.brand }} {{ vehicle.model }}"
+         style="width:500px; max-width:100%; border-radius:8px;">
+{% else %}
+    <p>Aucune image principale disponible.</p>
+{% endif %}
 
 <hr>
 
 <!-- Images secondaires -->
 <h3>Galerie</h3>
+
 <div style="display:flex; gap:15px; flex-wrap:wrap;">
     {% for img in vehicle.images.all %}
-        <img src="{{ img.image.url }}" style="width:200px;">
+        {% if img.image %}
+            <img src="{{ img.image.url }}"
+                 alt="Image {{ forloop.counter }} - {{ vehicle.brand }} {{ vehicle.model }}"
+                 style="width:200px; border-radius:6px;">
+        {% endif %}
     {% empty %}
         <p>Aucune image supplémentaire.</p>
     {% endfor %}
