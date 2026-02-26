@@ -52,7 +52,8 @@
             Réserver
         </a>
     {% else %}
-        <a href="{% url 'login' %}?next={{ request.path }}"
+        {# Redirection vers login avec next vers la page de formulaire de réservation #}
+        <a href="{% url 'login' %}?next={% url 'reservation_form' vehicle.slug %}"
            style="background:#007bff; color:white; padding:10px 20px; border-radius:5px;">
             Réservez (connexion requise)
         </a>
