@@ -12,10 +12,10 @@ def vehicle_list(request):
     - Les véhicules en cours de réservation restent visibles
     """
 
-    # On exclut les véhicules vendus
+    # exclut les véhicules vendus
     queryset = Vehicle.objects.exclude(status=Vehicle.SOLD)
 
-    # Optimisation ORM (préparation si images multiples)
+    # Optimisation ORM
     queryset = queryset.prefetch_related("images")
 
     # Application des filtres

@@ -70,11 +70,16 @@ class VehicleViewsTests(TestCase):
         self.assertContains(response, "login")
 
     def test_reserve_button_visible_if_authenticated(self):
+        # On se connecte avec l'utilisateur client
         self.client.login(username="testuser", password="testpass123")
 
         response = self.client.get(
             reverse("vehicle_detail", args=[self.vehicle.slug])
         )
+
+        # Vérifie que le bouton contient bien le lien vers le formulaire client
+        expected_url = reverse("reservation_form", args=[self.vehicle.slug])
+        self.assertContains(response, f'href="{expected_url}"')
         self.assertContains(response, "Réserver")
 
 
@@ -127,17 +132,6 @@ class VehicleFilterTests(TestCase):
         self.assertContains(response, "Audi")
         self.assertNotContains(response, "Yamaha")
 
-    # Filtre par année
-
-    def test_filter_by_year(self):
-        response = self.client.get(
-            reverse("vehicle_list"),
-            {"year": 2022}
-        )
-
-        self.assertContains(response, "Yamaha")
-        self.assertNotContains(response, "BMW")
-        self.assertNotContains(response, "Audi")
 
     # Prix minimum
 
@@ -203,6 +197,44 @@ class VehicleFilterTests(TestCase):
         prices = [v.price for v in page]
 
         self.assertEqual(prices, sorted(prices, reverse=True))
+
+    # Dans VehicleFilterTests
+
+    def test_filter_by_min_year(self):
+        response = self.client.get(
+            reverse("vehicle_list"),
+            {"min_year": 2021}
+        )
+        for v in response.context["vehicles"]:
+            self.assertGreaterEqual(v.year, 2021)
+
+    def test_filter_by_max_mileage(self):
+        response = self.client.get(
+            reverse("vehicle_list"),
+            {"max_mileage": 50000}
+        )
+        for v in response.context["vehicles"]:
+            self.assertLessEqual(v.mileage, 50000)
+
+    def test_filter_hide_reserved(self):
+        # Crée un véhicule réservé
+        reserved_vehicle = Vehicle.objects.create(
+            brand="TestBrand",
+            model="TestModel",
+            engine="2.0",
+            year=2022,
+            color="Noir",
+            mileage=10000,
+            vehicle_type=Vehicle.PURCHASE,
+            price=30000,
+            status=Vehicle.RESERVED
+        )
+        response = self.client.get(
+            reverse("vehicle_list"),
+            {"hide_reserved": True}
+        )
+        # Le véhicule réservé ne doit pas apparaître
+        self.assertNotIn(reserved_vehicle, response.context["vehicles"])
 
 
 class VehicleOrderingTests(TestCase):
