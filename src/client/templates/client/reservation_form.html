@@ -1,10 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Reservation</title>
-</head>
-<body>
-<h1>RESERVATION</h1>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Réservation véhicule{% endblock %}
+
+{% block content %}
+
+<h1>Réserver : {{ vehicle.brand }} {{ vehicle.model }}</h1>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <h2>Informations personnelles</h2>
+    {{ form.phone.label_tag }} {{ form.phone }}
+    <br>
+
+    {{ form.address.label_tag }} {{ form.address }}
+    <br>
+
+    {{ form.city.label_tag }} {{ form.city }}
+    <br>
+
+    {{ form.postal_code.label_tag }} {{ form.postal_code }}
+    <br>
+
+    {{ form.country.label_tag }} {{ form.country }}
+
+    <h2>Documents</h2>
+
+    <p>Permis de conduire :</p>
+    {{ form.driver_license }}
+
+    <h2>Conditions</h2>
+
+    <label>
+        {{ form.accepted_terms }}
+        J'accepte les conditions générales de location.
+    </label>
+    <br>
+
+    <label>
+        {{ form.accepted_gdpr }}
+        J'accepte le traitement de mes données personnelles (RGPD).
+    </label>
+
+    <br><br>
+
+    <button type="submit">Valider la réservation</button>
+
+</form>
+
+{% endblock %}
