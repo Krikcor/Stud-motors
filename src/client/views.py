@@ -5,7 +5,7 @@ from vehicles.models import Vehicle
 from .forms import ReservationForm
 from .models import Reservation
 
-from reservations.models import Reservation
+from client.models import Reservation
 from django.contrib.auth.decorators import login_required
 
 
