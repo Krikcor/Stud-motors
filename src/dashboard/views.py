@@ -149,3 +149,60 @@ def list_vehicle(request):
     return render(request, "dashboard/list_vehicle.html", {
         "vehicles": vehicles
     })
+
+from client.models import Reservation
+from vehicles.models import Vehicle
+
+@login_required
+def pro_reservations(request):
+
+    if request.user.profile.role != "pro":
+        return HttpResponseForbidden()
+
+    reservations = Reservation.objects.select_related(
+        "user",
+        "vehicle"
+    ).order_by("-created_at")
+
+    return render(
+        request,
+        "dashboard/pro_reservations.html",
+        {"reservations": reservations}
+    )
+
+@login_required
+def reservation_detail(request, pk):
+
+    if request.user.profile.role != "pro":
+        return HttpResponseForbidden()
+
+    reservation = get_object_or_404(Reservation, pk=pk)
+
+    return render(
+        request,
+        "dashboard/reservation_detail.html",
+        {"reservation": reservation}
+    )
+
+@login_required
+def reservation_decision(request, pk, decision):
+
+    if request.user.profile.role != "pro":
+        return HttpResponseForbidden()
+
+    reservation = get_object_or_404(Reservation, pk=pk)
+
+    if decision == "approve":
+        reservation.status = Reservation.STATUS_APPROVED
+        reservation.vehicle.status = Vehicle.RESERVED
+        reservation.vehicle.save()
+
+    elif decision == "refuse":
+        reservation.status = Reservation.STATUS_REFUSED
+        reservation.vehicle.status = Vehicle.AVAILABLE
+        reservation.vehicle.save()
+
+    reservation.save()
+
+    return redirect("pro_reservations")
+

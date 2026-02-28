@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Dossiers clients</h2>
+
+<table class="table">
+<tr>
+    <th>Client</th>
+    <th>Véhicule</th>
+    <th>Date</th>
+    <th>Statut</th>
+    <th></th>
+</tr>
+
+{% for r in reservations %}
+<tr>
+    <td>{{ r.user.username }}</td>
+    <td>{{ r.vehicle }}</td>
+    <td>{{ r.created_at|date:"d/m/Y" }}</td>
+
+    <td>
+        {% if r.status == "pending" %}
+            En attente
+        {% elif r.status == "approved" %}
+            Acceptée
+        {% else %}
+            Refusée
+        {% endif %}
+    </td>
+
+    <td>
+        <a href="{% url 'reservation_detail' r.id %}">
+            Consulter
+        </a>
+    </td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

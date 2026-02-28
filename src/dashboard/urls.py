@@ -10,4 +10,11 @@ urlpatterns = [
     path("vehicle/modify/", views.modify_vehicle, name="modify_vehicle"),
     path("logout/", LogoutView.as_view(next_page="index"), name="logout"),
     path("vehicle/list/", views.list_vehicle, name="list_vehicle"),
+    path("reservations/", views.pro_reservations, name="pro_reservations"),
+    path("reservation/<int:pk>/", views.reservation_detail, name="reservation_detail"),
+    path(
+    "reservation/<int:pk>/<str:decision>/",
+    views.reservation_decision,
+    name="reservation_decision"
+    ),
 ]

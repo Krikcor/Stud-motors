@@ -28,10 +28,7 @@ class Reservation(models.Model):
 
 
     # Documents
-    id_document = models.FileField(upload_to="reservations/id/")
     driver_license = models.FileField(upload_to="reservations/license/")
-    proof_of_address = models.FileField(upload_to="reservations/address/")
-    income_proof = models.FileField(upload_to="reservations/income/")
 
     # RGPD
     accepted_terms = models.BooleanField()

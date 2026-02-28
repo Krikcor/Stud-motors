@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Dossier réservation</h2>
+
+<h4>Client</h4>
+<p>{{ reservation.user.username }}</p>
+<p>{{ reservation.phone }}</p>
+
+<h4>Adresse</h4>
+<p>
+{{ reservation.address }}<br>
+{{ reservation.postal_code }} {{ reservation.city }}<br>
+{{ reservation.country }}
+</p>
+
+<hr>
+
+<h4>Documents</h4>
+
+<a href="{{ reservation.driver_license.url }}">Voir le Permis</a><br>
+
+<hr>
+
+<a href="{% url 'reservation_decision' reservation.id 'approve' %}"
+   class="btn btn-success">
+   Accepter
+</a>
+
+<a href="{% url 'reservation_decision' reservation.id 'refuse' %}"
+   class="btn btn-danger">
+   Refuser
+</a>
+
+{% endblock %}
