@@ -386,3 +386,152 @@ class ListVehicleTests(TestCase):
         self.assertContains(response, "Audi")
         self.assertContains(response, "X5")
         self.assertContains(response, "A3")
+
+from django.test import TestCase
+from django.urls import reverse
+from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+from accounts.models import Profile
+from vehicles.models import Vehicle
+from client.models import Reservation
+
+
+class ReservationDashboardTests(TestCase):
+
+    def setUp(self):
+
+        # PRO USER
+        self.pro_user = User.objects.create_user(
+            username="pro",
+            password="testpass123"
+        )
+        Profile.objects.create(user=self.pro_user, role="pro")
+
+        # CLIENT USER
+        self.client_user = User.objects.create_user(
+            username="client",
+            password="testpass123"
+        )
+        Profile.objects.create(user=self.client_user, role="client")
+
+        # VEHICLE
+        self.vehicle = Vehicle.objects.create(
+            brand="BMW",
+            model="X5",
+            engine="3.0",
+            year=2022,
+            color="Noir",
+            mileage=10000,
+            vehicle_type="purchase",
+            price=50000,
+            status="available"
+        )
+
+        # DRIVER LICENSE
+        self.license = SimpleUploadedFile(
+            "license.pdf",
+            b"filecontent",
+            content_type="application/pdf"
+        )
+
+        # RESERVATION
+        self.reservation = Reservation.objects.create(
+            user=self.client_user,
+            vehicle=self.vehicle,
+            phone="0600000000",
+            address="1 rue test",
+            city="Paris",
+            postal_code="75000",
+            country="France",
+            driver_license=self.license,
+            accepted_terms=True,
+            accepted_gdpr=True
+        )
+
+    # LISTE RESERVATIONS
+
+    def test_pro_can_access_reservations(self):
+        self.client.login(username="pro", password="testpass123")
+
+        response = self.client.get(reverse("pro_reservations"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "BMW")
+
+    def test_client_cannot_access_reservations(self):
+        self.client.login(username="client", password="testpass123")
+
+        response = self.client.get(reverse("pro_reservations"))
+
+        self.assertEqual(response.status_code, 403)
+
+    # DETAIL
+
+    def test_pro_can_view_reservation_detail(self):
+        self.client.login(username="pro", password="testpass123")
+
+        response = self.client.get(
+            reverse("reservation_detail", args=[self.reservation.id])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "0600000000")
+
+    # APPROVE
+
+    def test_pro_can_approve_reservation(self):
+        self.client.login(username="pro", password="testpass123")
+
+        response = self.client.get(
+            reverse(
+                "reservation_decision",
+                args=[self.reservation.id, "approve"]
+            )
+        )
+
+        self.reservation.refresh_from_db()
+        self.vehicle.refresh_from_db()
+
+        self.assertEqual(
+            self.reservation.status,
+            Reservation.STATUS_APPROVED
+        )
+
+        self.assertEqual(self.vehicle.status, "reserved")
+        self.assertEqual(response.status_code, 302)
+
+    # REFUSE
+
+    def test_pro_can_refuse_reservation(self):
+        self.client.login(username="pro", password="testpass123")
+
+        response = self.client.get(
+            reverse(
+                "reservation_decision",
+                args=[self.reservation.id, "refuse"]
+            )
+        )
+
+        self.reservation.refresh_from_db()
+
+        self.assertEqual(
+            self.reservation.status,
+            Reservation.STATUS_REFUSED
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    # SECURITY
+
+    def test_client_cannot_decide(self):
+        self.client.login(username="client", password="testpass123")
+
+        response = self.client.get(
+            reverse(
+                "reservation_decision",
+                args=[self.reservation.id, "approve"]
+            )
+        )
+
+        self.assertEqual(response.status_code, 403)

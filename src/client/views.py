@@ -1,10 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 
 from vehicles.models import Vehicle
 from .forms import ReservationForm
 from .models import Reservation
+
+from reservations.models import Reservation
+from django.contrib.auth.decorators import login_required
 
 
 @login_required
@@ -77,4 +79,31 @@ def reservation_form(request, slug):
             "form": form,
             "vehicle": vehicle,
         }
+    )
+
+@login_required
+def client_dashboard(request):
+
+    reservations = Reservation.objects.filter(
+        client=request.user
+    ).order_by("-id")
+
+    return render(
+        request,
+        "client/dashboard.html",
+        {"reservations": reservations}
+    )
+
+@login_required
+def client_reservation_detail(request, pk):
+
+    reservation = Reservation.objects.get(
+        pk=pk,
+        client=request.user
+    )
+
+    return render(
+        request,
+        "client/reservation_detail.html",
+        {"reservation": reservation}
     )
