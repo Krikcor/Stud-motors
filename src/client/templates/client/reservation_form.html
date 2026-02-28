@@ -9,25 +9,34 @@
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
+    {{ form.non_field_errors }}
+
     <h2>Informations personnelles</h2>
+
     {{ form.phone.label_tag }} {{ form.phone }}
+    {{ form.phone.errors }}
     <br>
 
     {{ form.address.label_tag }} {{ form.address }}
+    {{ form.address.errors }}
     <br>
 
     {{ form.city.label_tag }} {{ form.city }}
+    {{ form.city.errors }}
     <br>
 
     {{ form.postal_code.label_tag }} {{ form.postal_code }}
+    {{ form.postal_code.errors }}
     <br>
 
     {{ form.country.label_tag }} {{ form.country }}
+    {{ form.country.errors }}
 
     <h2>Documents</h2>
 
     <p>Permis de conduire :</p>
     {{ form.driver_license }}
+    {{ form.driver_license.errors }}
 
     <h2>Conditions</h2>
 
@@ -35,12 +44,14 @@
         {{ form.accepted_terms }}
         J'accepte les conditions générales de location.
     </label>
+    {{ form.accepted_terms.errors }}
     <br>
 
     <label>
         {{ form.accepted_gdpr }}
         J'accepte le traitement de mes données personnelles (RGPD).
     </label>
+    {{ form.accepted_gdpr.errors }}
 
     <br><br>
 
