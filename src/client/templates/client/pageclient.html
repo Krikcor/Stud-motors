@@ -8,7 +8,7 @@
 
     <!-- HEADER -->
     <div class="mb-4">
-        <h1>Bienvenue {{ user.first_name }} 👋</h1>
+        <h1>Bienvenue {{ user.first_name }}</h1>
         <p class="text-muted">
             Consultez vos demandes de réservation et leur état de validation.
         </p>
@@ -71,7 +71,6 @@
                             <th>Véhicule</th>
                             <th>Date</th>
                             <th>Statut</th>
-                            <th class="text-center">Action</th>
                         </tr>
                     </thead>
 
@@ -113,18 +112,6 @@
 
                             </td>
 
-                            <!-- ACTION -->
-                            <td class="text-center">
-
-                                {% if reservation.status != "pending" %}
-                                    <button class="btn btn-sm btn-outline-primary" disabled>
-                                        Voir
-                                    </button>
-                                {% else %}
-                                    <span class="text-muted">—</span>
-                                {% endif %}
-
-                            </td>
 
                         </tr>
                         {% endfor %}
