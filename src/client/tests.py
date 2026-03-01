@@ -195,3 +195,108 @@ class ReservationTests(TestCase):
             ).count(),
             1
         )
+
+class ClientDashboardTests(TestCase):
+
+    def setUp(self):
+
+        self.user = User.objects.create_user(
+            username="client1",
+            password="password123"
+        )
+
+        Profile.objects.create(
+            user=self.user,
+            role="client"
+        )
+
+        self.vehicle = Vehicle.objects.create(
+            brand="BMW",
+            model="M3",
+            engine="V6",
+            year=2022,
+            color="Blue",
+            mileage=5000,
+            vehicle_type=Vehicle.RENTAL,
+            price=20000,
+            status=Vehicle.AVAILABLE,
+        )
+
+        self.client.login(
+            username="client1",
+            password="password123"
+        )
+
+        self.dashboard_url = reverse("client_dashboard")
+
+
+    # LOGIN REQUIRED
+
+
+    def test_dashboard_requires_login(self):
+
+        self.client.logout()
+
+        response = self.client.get(self.dashboard_url)
+
+        self.assertEqual(response.status_code, 302)
+
+
+    # CLIENT SEES RESERVATION
+
+    def test_client_sees_his_reservation(self):
+
+        Reservation.objects.create(
+            user=self.user,
+            vehicle=self.vehicle,
+            phone="0600000000",
+            address="1 rue test",
+            city="Paris",
+            postal_code="75000",
+            country="France",
+            accepted_terms=True,
+            accepted_gdpr=True,
+            driver_license="licenses/test.pdf",
+        )
+
+        response = self.client.get(self.dashboard_url)
+
+        self.assertEqual(response.status_code, 200)
+
+        reservations = response.context["reservations"]
+
+        self.assertEqual(reservations.count(), 1)
+
+    # ONLY OWN RESERVATIONS
+
+    def test_client_cannot_see_other_users_reservations(self):
+
+        other = User.objects.create_user(
+            username="other",
+            password="password123"
+        )
+
+        Profile.objects.create(
+            user=other,
+            role="client"
+        )
+
+        Reservation.objects.create(
+            user=other,
+            vehicle=self.vehicle,
+            phone="0600000000",
+            address="Other",
+            city="Lyon",
+            postal_code="69000",
+            country="France",
+            accepted_terms=True,
+            accepted_gdpr=True,
+            driver_license="licenses/test.pdf",
+        )
+
+        response = self.client.get(self.dashboard_url)
+
+        reservations = response.context["reservations"]
+
+        self.assertEqual(reservations.count(), 0)
+

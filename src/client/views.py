@@ -12,7 +12,6 @@ def client_dashboard(request):
     """
     Dashboard client : afficher toutes les réservations du client.
     """
-    # ⚠️ Utilisation du champ correct 'user'
     reservations = Reservation.objects.filter(user=request.user).order_by("-created_at")
 
     return render(
@@ -78,7 +77,6 @@ def client_reservation_detail(request, pk):
     """
     Affiche le détail d'une réservation spécifique pour le client.
     """
-    # ⚠️ Utilisation du champ correct 'user'
     reservation = get_object_or_404(
         Reservation,
         pk=pk,
