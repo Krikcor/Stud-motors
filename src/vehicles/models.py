@@ -4,7 +4,7 @@ from django.utils.text import slugify
 
 class Vehicle(models.Model):
 
-    # TYPE (Achat / Location)
+    # TYPE
     PURCHASE = 'purchase'
     RENTAL = 'rental'
 
@@ -13,7 +13,7 @@ class Vehicle(models.Model):
         (RENTAL, 'Location'),
     ]
 
-    # STATUS (Business logique)
+    # STATUS
     AVAILABLE = "available"
     RESERVED = "reserved"
     SOLD = "sold"

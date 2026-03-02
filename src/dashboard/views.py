@@ -194,14 +194,13 @@ def reservation_decision(request, pk, decision):
 
     if decision == "approve":
         reservation.status = Reservation.STATUS_APPROVED
-        reservation.vehicle.status = Vehicle.RESERVED
-        reservation.vehicle.save()
+        reservation.vehicle.status = Vehicle.SOLD
 
     elif decision == "refuse":
         reservation.status = Reservation.STATUS_REFUSED
         reservation.vehicle.status = Vehicle.AVAILABLE
-        reservation.vehicle.save()
 
+    reservation.vehicle.save()
     reservation.save()
 
     return redirect("pro_reservations")

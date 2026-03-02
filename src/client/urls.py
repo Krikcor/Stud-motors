@@ -15,5 +15,4 @@ urlpatterns = [
     LogoutView.as_view(next_page="vehicle_list"),
     name="logout",
     ),
-
 ]

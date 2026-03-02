@@ -498,7 +498,8 @@ class ReservationDashboardTests(TestCase):
             Reservation.STATUS_APPROVED
         )
 
-        self.assertEqual(self.vehicle.status, "reserved")
+        self.assertEqual(self.vehicle.status, "sold")
+
         self.assertEqual(response.status_code, 302)
 
     # REFUSE

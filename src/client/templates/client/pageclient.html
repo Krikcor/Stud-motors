@@ -41,20 +41,12 @@
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h5 class="card-title">👤 Mon profil</h5>
+                    <h5 class="card-title">Mon profil</h5>
 
                     <p><strong>Email :</strong> {{ user.email }}</p>
                     <p><strong>Nom :</strong> {{ user.first_name }} {{ user.last_name }}</p>
 
-                    {% if reservations %}
-                        <span class="badge bg-success">
-                            Client actif
-                        </span>
-                    {% else %}
-                        <span class="badge bg-warning text-dark">
-                            Aucune réservation
-                        </span>
-                    {% endif %}
+
                 </div>
             </div>
         </div>
