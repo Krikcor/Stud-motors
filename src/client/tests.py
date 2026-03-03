@@ -433,7 +433,7 @@ class DeleteAccountTests(TestCase):
 
         pending = self.create_reservation(Reservation.STATUS_PENDING)
 
-        # On simule le statut réservé du véhicule
+        # Simule le statut réservé du véhicule
         self.vehicle.status = Vehicle.RESERVED
         self.vehicle.save()
 
@@ -445,3 +445,149 @@ class DeleteAccountTests(TestCase):
             self.vehicle.status,
             Vehicle.AVAILABLE
         )
+
+class EditProfileTests(TestCase):
+
+    def setUp(self):
+
+        self.user = User.objects.create_user(
+            username="edituser",
+            password="password123",
+            first_name="Old",
+            last_name="Name",
+            email="old@email.com"
+        )
+
+        Profile.objects.create(
+            user=self.user,
+            role="client"
+        )
+
+        self.client.login(
+            username="edituser",
+            password="password123"
+        )
+
+        self.url = reverse("edit_profile")
+
+
+    # LOGIN REQUIRED
+
+    def test_edit_profile_requires_login(self):
+
+        self.client.logout()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 302)
+
+
+    # DISPLAY
+
+    def test_edit_profile_display(self):
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+
+
+    # UPDATE PERSONAL INFO ONLY
+
+    def test_update_profile_without_password_change(self):
+
+        response = self.client.post(self.url, {
+            "first_name": "New",
+            "last_name": "Lastname",
+            "email": "new@email.com",
+            "new_password1": "",
+            "new_password2": "",
+        }, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+        self.user.refresh_from_db()
+
+        self.assertEqual(self.user.first_name, "New")
+        self.assertEqual(self.user.last_name, "Lastname")
+        self.assertEqual(self.user.email, "new@email.com")
+
+        # Mot de passe inchangé
+        self.assertTrue(self.user.check_password("password123"))
+
+
+    # PASSWORD CHANGE SUCCESS
+
+    def test_update_profile_with_password_change(self):
+
+        response = self.client.post(self.url, {
+            "first_name": "Old",
+            "last_name": "Name",
+            "email": "old@email.com",
+            "new_password1": "NewStrongPass123!",
+            "new_password2": "NewStrongPass123!",
+        }, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+        self.user.refresh_from_db()
+
+        self.assertTrue(self.user.check_password("NewStrongPass123!"))
+
+
+    # PASSWORD MISMATCH
+
+    def test_password_mismatch(self):
+
+        response = self.client.post(self.url, {
+            "first_name": "Old",
+            "last_name": "Name",
+            "email": "old@email.com",
+            "new_password1": "Password123!",
+            "new_password2": "Different123!",
+        })
+
+        self.assertEqual(response.status_code, 200)
+
+        form = response.context["password_form"]
+
+        self.assertFalse(form.is_valid())
+
+        # Mot de passe inchangé
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("password123"))
+
+
+    # REQUIRED FIELDS CANNOT BE EMPTY
+
+    def test_required_fields_cannot_be_empty(self):
+
+        response = self.client.post(self.url, {
+            "first_name": "",
+            "last_name": "",
+            "email": "",
+        })
+
+        self.assertEqual(response.status_code, 200)
+
+        form = response.context["form"]
+
+        self.assertIn("first_name", form.errors)
+        self.assertIn("last_name", form.errors)
+        self.assertIn("email", form.errors)
+
+
+    # USERNAME CANNOT BE MODIFIED
+
+    def test_username_cannot_be_modified(self):
+
+        response = self.client.post(self.url, {
+            "first_name": "Old",
+            "last_name": "Name",
+            "email": "old@email.com",
+            "username": "hacker_attempt",  # tentative injection
+        }, follow=True)
+
+        self.user.refresh_from_db()
+
+        # Username doit rester inchangé
+        self.assertEqual(self.user.username, "edituser")

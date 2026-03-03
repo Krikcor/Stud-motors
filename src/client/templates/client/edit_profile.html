@@ -1,0 +1,13 @@
+<h2>Modifier mon profil {{ user.username }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <h3>Informations personnelles</h3>
+    {{ form.as_p }}
+
+    <h3>Changer le mot de passe</h3>
+    {{ password_form.as_p }}
+
+    <button type="submit">Enregistrer</button>
+</form>

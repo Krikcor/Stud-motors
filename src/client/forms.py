@@ -1,6 +1,8 @@
 from django import forms
 from .models import Reservation
-
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
 
 class ReservationForm(forms.ModelForm):
 
@@ -55,3 +57,43 @@ class ReservationForm(forms.ModelForm):
             )
 
         return file
+
+
+
+class ClientUpdateForm(forms.ModelForm):
+
+    first_name = forms.CharField(max_length=100, required=True)
+    last_name = forms.CharField(max_length=100, required=True)
+    email = forms.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email"]
+
+class OptionalPasswordChangeForm(forms.Form):
+
+    new_password1 = forms.CharField(
+        label="Nouveau mot de passe",
+        required=False,
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"})
+    )
+
+    new_password2 = forms.CharField(
+        label="Confirmer le mot de passe",
+        required=False,
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"})
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get("new_password1")
+        password2 = cleaned_data.get("new_password2")
+
+        if password1 or password2:
+
+            if password1 != password2:
+                raise ValidationError("Les mots de passe ne correspondent pas.")
+
+            validate_password(password1)
+
+        return cleaned_data

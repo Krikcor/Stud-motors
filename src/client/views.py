@@ -1,13 +1,18 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 
 from vehicles.models import Vehicle
 from .forms import ReservationForm
 from .models import Reservation
 
-from django.contrib import messages
 from django.contrib.auth import logout
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+
+from django.contrib.auth import update_session_auth_hash
+from .forms import ClientUpdateForm, OptionalPasswordChangeForm
+
 
 @login_required
 def client_dashboard(request):
@@ -99,6 +104,7 @@ def client_reservation_detail(request, pk):
         {"reservation": reservation}
     )
 
+
 @login_required
 def delete_account(request):
 
@@ -141,3 +147,37 @@ def delete_account(request):
         return redirect("vehicle_list")
 
     return redirect("client_dashboard")
+
+
+@login_required
+def edit_profile(request):
+
+    if request.user.profile.role != "client":
+        return redirect("vehicle_list")
+
+    if request.method == "POST":
+
+        form = ClientUpdateForm(request.POST, instance=request.user)
+        password_form = OptionalPasswordChangeForm(request.POST)
+
+        if form.is_valid() and password_form.is_valid():
+
+            user = form.save()
+
+            new_password = password_form.cleaned_data.get("new_password1")
+
+            if new_password:
+                user.set_password(new_password)
+                user.save()
+                update_session_auth_hash(request, user)
+
+            return redirect("client_dashboard")
+
+    else:
+        form = ClientUpdateForm(instance=request.user)
+        password_form = OptionalPasswordChangeForm()
+
+    return render(request, "client/edit_profile.html", {
+        "form": form,
+        "password_form": password_form
+    })

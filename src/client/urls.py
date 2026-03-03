@@ -20,4 +20,6 @@ urlpatterns = [
     views.delete_account,
     name="delete_account"
     ),
+    path("edit-profile/", views.edit_profile, name="edit_profile"),
 ]
+
