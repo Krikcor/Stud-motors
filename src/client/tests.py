@@ -196,6 +196,49 @@ class ReservationTests(TestCase):
             1
         )
 
+# PRO CANNOT RESERVE
+
+    def test_pro_cannot_reserve_vehicle(self):
+
+        # Création d’un utilisateur pro
+        pro_user = User.objects.create_user(
+            username="pro_user",
+            password="password123"
+        )
+
+        Profile.objects.create(
+            user=pro_user,
+            role="pro"
+        )
+
+        self.client.logout()
+
+        self.client.login(
+            username="pro_user",
+            password="password123"
+        )
+
+        response = self.client.post(self.url, self.valid_data)
+
+        # Accès interdit
+        self.assertEqual(response.status_code, 403)
+
+        # Aucune réservation créée
+        self.assertFalse(
+            Reservation.objects.filter(
+                user=pro_user,
+                vehicle=self.vehicle
+            ).exists()
+        )
+
+        # Véhicule toujours disponible
+        self.vehicle.refresh_from_db()
+
+        self.assertEqual(
+            self.vehicle.status,
+            Vehicle.AVAILABLE
+        )
+
 class ClientDashboardTests(TestCase):
 
     def setUp(self):
@@ -299,4 +342,3 @@ class ClientDashboardTests(TestCase):
         reservations = response.context["reservations"]
 
         self.assertEqual(reservations.count(), 0)
-

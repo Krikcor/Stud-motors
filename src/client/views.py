@@ -26,16 +26,24 @@ def reservation_form(request, slug):
     """
     Formulaire de réservation pour un véhicule spécifique.
     """
+
     vehicle = get_object_or_404(Vehicle, slug=slug)
 
-    # Bloquer si le véhicule est déjà réservé
+    # Seuls les comptes client peuvent réserver
+    if request.user.profile.role != "client":
+        raise PermissionDenied("Seuls les clients peuvent effectuer une réservation.")
+
+    # Bloquer si le véhicule est vendu
+    if vehicle.status == Vehicle.SOLD:
+        return redirect("vehicle_list")
+
+    # Bloquer si déjà en cours de réservation
     if vehicle.status == Vehicle.RESERVED:
         return redirect("vehicle_list")
 
     if request.method == "POST":
         form = ReservationForm(request.POST, request.FILES)
 
-        # Si le formulaire n'est pas valide, on le réaffiche
         if not form.is_valid():
             return render(
                 request,
@@ -43,7 +51,7 @@ def reservation_form(request, slug):
                 {"form": form, "vehicle": vehicle}
             )
 
-        # Empêcher la double réservation du même véhicule par le même utilisateur
+        # Empêcher double réservation par le même utilisateur
         if Reservation.objects.filter(user=request.user, vehicle=vehicle).exists():
             return render(
                 request,
@@ -51,19 +59,19 @@ def reservation_form(request, slug):
                 {"form": form, "vehicle": vehicle}
             )
 
-        # Création de la réservation
+        # Création réservation
         reservation = form.save(commit=False)
         reservation.user = request.user
         reservation.vehicle = vehicle
         reservation.save()
 
-        # Mettre le véhicule en statut réservé
+        # Passage en "en cours"
         vehicle.status = Vehicle.RESERVED
         vehicle.save()
 
         return redirect("vehicle_list")
 
-    # GET : affichage du formulaire
+    # GET
     form = ReservationForm()
     return render(
         request,
