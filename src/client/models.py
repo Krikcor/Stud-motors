@@ -15,7 +15,12 @@ class Reservation(models.Model):
         (STATUS_REFUSED, "Refusée"),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
 
     # Infos personnelles
@@ -43,4 +48,6 @@ class Reservation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.vehicle}"
+        if self.user:
+            return f"{self.user.username} - {self.vehicle}"
+        return f"Utilisateur supprimé - {self.vehicle}"

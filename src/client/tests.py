@@ -342,3 +342,106 @@ class ClientDashboardTests(TestCase):
         reservations = response.context["reservations"]
 
         self.assertEqual(reservations.count(), 0)
+
+class DeleteAccountTests(TestCase):
+
+    def setUp(self):
+
+        self.user = User.objects.create_user(
+            username="deleteuser",
+            password="password123"
+        )
+
+        Profile.objects.create(
+            user=self.user,
+            role="client"
+        )
+
+        self.vehicle = Vehicle.objects.create(
+            brand="Audi",
+            model="RS6",
+            engine="V8",
+            year=2021,
+            color="Grey",
+            mileage=8000,
+            vehicle_type=Vehicle.RENTAL,
+            price=50000,
+            status=Vehicle.AVAILABLE,
+        )
+
+        self.client.login(
+            username="deleteuser",
+            password="password123"
+        )
+
+        self.delete_url = reverse("delete_account")
+
+    def create_reservation(self, status):
+        return Reservation.objects.create(
+            user=self.user,
+            vehicle=self.vehicle,
+            phone="0600000000",
+            address="1 rue test",
+            city="Paris",
+            postal_code="75000",
+            country="France",
+            accepted_terms=True,
+            accepted_gdpr=True,
+            driver_license="licenses/test.pdf",
+            status=status
+        )
+
+    # TEST GLOBAL DELETE LOGIC
+
+    def test_delete_account_behavior(self):
+
+        # Création des 3 types de réservation
+        pending = self.create_reservation(Reservation.STATUS_PENDING)
+        refused = self.create_reservation(Reservation.STATUS_REFUSED)
+        approved = self.create_reservation(Reservation.STATUS_APPROVED)
+
+        response = self.client.post(self.delete_url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+        # User supprimé
+        self.assertFalse(
+            User.objects.filter(username="deleteuser").exists()
+        )
+
+        # Pending supprimée
+        self.assertFalse(
+            Reservation.objects.filter(id=pending.id).exists()
+        )
+
+        # Refused supprimée
+        self.assertFalse(
+            Reservation.objects.filter(id=refused.id).exists()
+        )
+
+        # Approved conservée
+        self.assertTrue(
+            Reservation.objects.filter(id=approved.id).exists()
+        )
+
+        approved.refresh_from_db()
+
+        # User détaché
+        self.assertIsNone(approved.user)
+
+    def test_vehicle_becomes_available_when_pending_deleted(self):
+
+        pending = self.create_reservation(Reservation.STATUS_PENDING)
+
+        # On simule le statut réservé du véhicule
+        self.vehicle.status = Vehicle.RESERVED
+        self.vehicle.save()
+
+        self.client.post(self.delete_url)
+
+        self.vehicle.refresh_from_db()
+
+        self.assertEqual(
+            self.vehicle.status,
+            Vehicle.AVAILABLE
+        )

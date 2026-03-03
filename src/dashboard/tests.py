@@ -1,14 +1,16 @@
-from django.test import TestCase
-from django.urls import reverse
-from django.contrib.auth.models import User
-
-from vehicles.models import Vehicle
-from accounts.models import Profile
-
 # AJOUTS POUR LES TESTS D’IMAGES
 from io import BytesIO
 from PIL import Image
+
+from django.test import TestCase
+from django.urls import reverse
+from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
+
+from accounts.models import Profile
+from vehicles.models import Vehicle
+from client.models import Reservation
+
 
 
 def generate_test_image():
@@ -387,14 +389,6 @@ class ListVehicleTests(TestCase):
         self.assertContains(response, "X5")
         self.assertContains(response, "A3")
 
-from django.test import TestCase
-from django.urls import reverse
-from django.contrib.auth.models import User
-from django.core.files.uploadedfile import SimpleUploadedFile
-
-from accounts.models import Profile
-from vehicles.models import Vehicle
-from client.models import Reservation
 
 
 class ReservationDashboardTests(TestCase):

@@ -33,7 +33,7 @@ def create_vehicle(request):
         raise PermissionDenied
 
     if request.method == "POST":
-        # ⚠️ IMPORTANT : ajouter request.FILES
+        # ajouter request.FILES
         form = VehicleForm(request.POST, request.FILES)
 
         if form.is_valid():

@@ -6,6 +6,8 @@ from vehicles.models import Vehicle
 from .forms import ReservationForm
 from .models import Reservation
 
+from django.contrib import messages
+from django.contrib.auth import logout
 
 @login_required
 def client_dashboard(request):
@@ -96,3 +98,46 @@ def client_reservation_detail(request, pk):
         "client/reservation_detail.html",
         {"reservation": reservation}
     )
+
+@login_required
+def delete_account(request):
+
+    if request.method == "POST":
+
+        user = request.user
+
+        # Récupérer les réservations pending
+        pending_reservations = Reservation.objects.filter(
+            user=user,
+            status=Reservation.STATUS_PENDING
+        )
+
+        for reservation in pending_reservations:
+            vehicle = reservation.vehicle
+
+            # Supprimer la réservation
+            reservation.delete()
+
+            # Si le véhicule était réservé → le remettre disponible
+            if vehicle.status == Vehicle.RESERVED:
+                vehicle.status = Vehicle.AVAILABLE
+                vehicle.save()
+
+        # Supprimer les réservations refusées
+        Reservation.objects.filter(
+            user=user,
+            status=Reservation.STATUS_REFUSED
+        ).delete()
+
+        # Détacher les réservations approved
+        Reservation.objects.filter(
+            user=user,
+            status=Reservation.STATUS_APPROVED
+        ).update(user=None)
+
+        logout(request)
+        user.delete()
+
+        return redirect("vehicle_list")
+
+    return redirect("client_dashboard")

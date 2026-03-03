@@ -15,4 +15,9 @@ urlpatterns = [
     LogoutView.as_view(next_page="vehicle_list"),
     name="logout",
     ),
+    path(
+    "delete-account/",
+    views.delete_account,
+    name="delete_account"
+    ),
 ]
