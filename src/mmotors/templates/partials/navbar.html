@@ -2,7 +2,12 @@
     <ul>
         <li><a href="{% url 'index' %}">Accueil</a></li>
         <li><a href="{% url 'vehicle_list' %}">Véhicules</a></li>
-        <li><a href="{% url 'register' %}">Inscription</a></li>
-        <li><a href="{% url 'login' %}">Connexion</a></li>
+
+        {% if request.user.is_authenticated %}
+            <li><a href="{% url 'client_dashboard' %}">Mon compte</a></li>
+        {% else %}
+            <li><a href="{% url 'register' %}">Inscription</a></li>
+            <li><a href="{% url 'login' %}">Connexion</a></li>
+        {% endif %}
     </ul>
 </nav>

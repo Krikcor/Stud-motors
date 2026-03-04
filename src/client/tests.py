@@ -196,6 +196,7 @@ class ReservationTests(TestCase):
             1
         )
 
+
 # PRO CANNOT RESERVE
 
     def test_pro_cannot_reserve_vehicle(self):
@@ -238,6 +239,7 @@ class ReservationTests(TestCase):
             self.vehicle.status,
             Vehicle.AVAILABLE
         )
+
 
 class ClientDashboardTests(TestCase):
 
@@ -343,6 +345,7 @@ class ClientDashboardTests(TestCase):
 
         self.assertEqual(reservations.count(), 0)
 
+
 class DeleteAccountTests(TestCase):
 
     def setUp(self):
@@ -445,6 +448,7 @@ class DeleteAccountTests(TestCase):
             self.vehicle.status,
             Vehicle.AVAILABLE
         )
+
 
 class EditProfileTests(TestCase):
 
