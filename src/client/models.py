@@ -1,7 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import User
 from vehicles.models import Vehicle
-
+from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Reservation(models.Model):
 
@@ -46,6 +46,19 @@ class Reservation(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    validated_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="reservations_validated"
+    )
+
+    validated_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
 
     def __str__(self):
         if self.user:

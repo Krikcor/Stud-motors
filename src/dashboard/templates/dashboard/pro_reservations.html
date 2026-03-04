@@ -9,6 +9,7 @@
     <th>Véhicule</th>
     <th>Date</th>
     <th>Statut</th>
+    <th>Validé par</th>
     <th></th>
 </tr>
 
@@ -26,6 +27,16 @@
         {% else %}
             Refusée
         {% endif %}
+    </td>
+
+    <td>
+    {% if r.validated_by %}
+        {{ r.validated_by.username }}
+        <br>
+        <small>{{ r.validated_at|date:"d/m/Y H:i" }}</small>
+    {% else %}
+        -
+    {% endif %}
     </td>
 
     <td>

@@ -531,6 +531,59 @@ class ReservationDashboardTests(TestCase):
 
         self.assertEqual(response.status_code, 403)
 
+    # VALIDATED_BY FIELD TESTS
+
+    def test_validated_by_set_on_approve(self):
+        self.client.login(username="pro", password="testpass123")
+
+        self.client.get(
+            reverse(
+                "reservation_decision",
+                args=[self.reservation.id, "approve"]
+            )
+        )
+
+        self.reservation.refresh_from_db()
+
+        self.assertEqual(
+            self.reservation.validated_by,
+            self.pro_user
+        )
+        self.assertIsNotNone(self.reservation.validated_at)
+
+    def test_validated_by_set_on_refuse(self):
+        self.client.login(username="pro", password="testpass123")
+
+        self.client.get(
+            reverse(
+                "reservation_decision",
+                args=[self.reservation.id, "refuse"]
+            )
+        )
+
+        self.reservation.refresh_from_db()
+
+        self.assertEqual(
+            self.reservation.validated_by,
+            self.pro_user
+        )
+        self.assertIsNotNone(self.reservation.validated_at)
+
+    def test_pro_username_displayed_in_dashboard(self):
+        self.client.login(username="pro", password="testpass123")
+
+        # Approve first
+        self.client.get(
+            reverse(
+                "reservation_decision",
+                args=[self.reservation.id, "approve"]
+            )
+        )
+
+        response = self.client.get(reverse("pro_reservations"))
+
+        self.assertContains(response, "pro")
+
 
 class ChangeVehicleTypeTests(TestCase):
 

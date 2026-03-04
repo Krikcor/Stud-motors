@@ -11,6 +11,7 @@ from vehicles.models import Vehicle
 
 from django.shortcuts import render
 
+from django.utils import timezone
 
 
 @login_required
@@ -161,7 +162,8 @@ def pro_reservations(request):
 
     reservations = Reservation.objects.select_related(
         "user",
-        "vehicle"
+        "vehicle",
+        "validated_by"
     ).order_by("-created_at")
 
     return render(
@@ -192,6 +194,9 @@ def reservation_decision(request, pk, decision):
 
     reservation = get_object_or_404(Reservation, pk=pk)
 
+    if reservation.status != Reservation.STATUS_PENDING:
+        return redirect("pro_reservations")
+
     if decision == "approve":
         reservation.status = Reservation.STATUS_APPROVED
         reservation.vehicle.status = Vehicle.SOLD
@@ -199,6 +204,9 @@ def reservation_decision(request, pk, decision):
     elif decision == "refuse":
         reservation.status = Reservation.STATUS_REFUSED
         reservation.vehicle.status = Vehicle.AVAILABLE
+
+    reservation.validated_by = request.user
+    reservation.validated_at = timezone.now()
 
     reservation.vehicle.save()
     reservation.save()
