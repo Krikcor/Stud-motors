@@ -205,3 +205,57 @@ def reservation_decision(request, pk, decision):
 
     return redirect("pro_reservations")
 
+
+
+@login_required
+def change_vehicle_type(request):
+
+    if request.user.profile.role != "pro":
+        return HttpResponseForbidden()
+
+    # Étape 1 : recherche par ID
+    if request.method == "POST" and "vehicle_id" in request.POST:
+        vehicle_id = request.POST.get("vehicle_id")
+
+        try:
+            vehicle = Vehicle.objects.get(id=vehicle_id)
+
+            return render(
+                request,
+                "dashboard/change_vehicle_type.html",
+                {"vehicle": vehicle}
+            )
+
+        except Vehicle.DoesNotExist:
+            return render(
+                request,
+                "dashboard/change_vehicle_type.html",
+                {"error": "Véhicule introuvable."}
+            )
+
+    # modification du type
+    if request.method == "POST" and "save_type" in request.POST:
+        vehicle_id = request.POST.get("save_type")
+        vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+
+        # Vérification statut
+        if vehicle.status != Vehicle.AVAILABLE:
+            return render(
+                request,
+                "dashboard/change_vehicle_type.html",
+                {
+                    "vehicle": vehicle,
+                    "error": "Impossible de modifier un véhicule réservé ou vendu."
+                }
+            )
+
+        new_type = request.POST.get("vehicle_type")
+
+        if new_type in [Vehicle.PURCHASE, Vehicle.RENTAL]:
+            vehicle.vehicle_type = new_type
+            vehicle.save()
+
+            messages.success(request, "Type du véhicule modifié avec succès.")
+            return redirect("pro_dashboard")
+
+    return render(request, "dashboard/change_vehicle_type.html")

@@ -17,4 +17,9 @@ urlpatterns = [
     views.reservation_decision,
     name="reservation_decision"
     ),
+    path(
+    "vehicle/change-type/",
+    views.change_vehicle_type,
+    name="change_vehicle_type"
+    ),
 ]

@@ -4,7 +4,11 @@
         <li><a href="{% url 'vehicle_list' %}">Véhicules</a></li>
 
         {% if request.user.is_authenticated %}
-            <li><a href="{% url 'client_dashboard' %}">Mon compte</a></li>
+            {% if request.user.profile.role == "pro" %}
+                <li><a href="{% url 'pro_dashboard' %}">Mon compte</a></li>
+            {% else %}
+                <li><a href="{% url 'client_dashboard' %}">Mon compte</a></li>
+            {% endif %}
         {% else %}
             <li><a href="{% url 'register' %}">Inscription</a></li>
             <li><a href="{% url 'login' %}">Connexion</a></li>

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Changer le type du véhicule</h2>
+
+{% if error %}
+<p style="color:red;">{{ error }}</p>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <label>ID du véhicule :</label>
+    <input type="number" name="vehicle_id" required>
+    <button type="submit">Rechercher</button>
+</form>
+
+{% if vehicle %}
+<hr>
+<p><strong>{{ vehicle.brand }} {{ vehicle.model }}</strong></p>
+<p>Statut : {{ vehicle.get_status_display }}</p>
+<p>Type actuel : {{ vehicle.get_vehicle_type_display }}</p>
+
+{% if vehicle.status == "available" %}
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="save_type" value="{{ vehicle.id }}">
+
+    <label>
+        <input type="radio" name="vehicle_type" value="purchase"
+        {% if vehicle.vehicle_type == "purchase" %}checked{% endif %}>
+        Achat
+    </label>
+
+    <label>
+        <input type="radio" name="vehicle_type" value="rental"
+        {% if vehicle.vehicle_type == "rental" %}checked{% endif %}>
+        Location
+    </label>
+
+    <br><br>
+    <button type="submit">Valider</button>
+</form>
+
+{% else %}
+<p style="color:red;">
+Impossible de modifier le type car le véhicule n'est pas disponible.
+</p>
+{% endif %}
+
+{% endif %}
+
+{% endblock %}

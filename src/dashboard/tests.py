@@ -530,3 +530,129 @@ class ReservationDashboardTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 403)
+
+
+class ChangeVehicleTypeTests(TestCase):
+
+    def setUp(self):
+
+        self.url = reverse("change_vehicle_type")
+
+        # PRO USER
+        self.pro_user = User.objects.create_user(
+            username="pro_change",
+            password="testpass123"
+        )
+        Profile.objects.create(user=self.pro_user, role="pro")
+
+        # CLIENT USER
+        self.client_user = User.objects.create_user(
+            username="client_change",
+            password="testpass123"
+        )
+        Profile.objects.create(user=self.client_user, role="client")
+
+        # VEHICLE AVAILABLE
+        self.available_vehicle = Vehicle.objects.create(
+            brand="BMW",
+            model="X1",
+            engine="2.0",
+            year=2021,
+            color="Noir",
+            mileage=15000,
+            vehicle_type=Vehicle.PURCHASE,
+            price=25000,
+            status=Vehicle.AVAILABLE
+        )
+
+        # VEHICLE RESERVED
+        self.reserved_vehicle = Vehicle.objects.create(
+            brand="Audi",
+            model="A4",
+            engine="2.0",
+            year=2020,
+            color="Blanc",
+            mileage=20000,
+            vehicle_type=Vehicle.PURCHASE,
+            price=22000,
+            status=Vehicle.RESERVED
+        )
+
+    # Sécurité accès
+
+    def test_pro_can_access_page(self):
+        self.client.login(username="pro_change", password="testpass123")
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_client_cannot_access_page(self):
+        self.client.login(username="client_change", password="testpass123")
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_anonymous_redirected(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+
+    # Recherche véhicule existant
+
+    def test_search_existing_vehicle(self):
+        self.client.login(username="pro_change", password="testpass123")
+
+        response = self.client.post(self.url, {
+            "vehicle_id": self.available_vehicle.id
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "BMW")
+
+    def test_search_non_existing_vehicle(self):
+        self.client.login(username="pro_change", password="testpass123")
+
+        response = self.client.post(self.url, {
+            "vehicle_id": 9999
+        })
+
+        self.assertContains(response, "Véhicule introuvable")
+
+    # Modification réussie (AVAILABLE)
+
+    def test_change_type_success(self):
+        self.client.login(username="pro_change", password="testpass123")
+
+        response = self.client.post(self.url, {
+            "save_type": self.available_vehicle.id,
+            "vehicle_type": Vehicle.RENTAL
+        })
+
+        self.available_vehicle.refresh_from_db()
+
+        self.assertEqual(
+            self.available_vehicle.vehicle_type,
+            Vehicle.RENTAL
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    # Refus si véhicule réservé
+
+    def test_cannot_change_if_reserved(self):
+        self.client.login(username="pro_change", password="testpass123")
+
+        response = self.client.post(self.url, {
+            "save_type": self.reserved_vehicle.id,
+            "vehicle_type": Vehicle.RENTAL
+        })
+
+        self.reserved_vehicle.refresh_from_db()
+
+        # Le type ne change pas
+        self.assertEqual(
+            self.reserved_vehicle.vehicle_type,
+            Vehicle.PURCHASE
+        )
+
+        self.assertContains(
+            response,
+            "Impossible de modifier un véhicule réservé ou vendu."
+        )
