@@ -18,3 +18,11 @@ class ClientRegisterForm(UserCreationForm):
         if User.objects.filter(email=email).exists():
             raise ValidationError("Cette adresse email est déjà utilisée.")
         return email
+
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+
+        if User.objects.filter(username__iexact=username).exists():
+            raise ValidationError("Ce nom d'utilisateur est déjà utilisé.")
+
+        return username

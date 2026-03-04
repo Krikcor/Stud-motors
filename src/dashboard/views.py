@@ -1,17 +1,14 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
-
 from .forms import VehicleForm
 from vehicles.models import VehicleImage
-
 from django.http import HttpResponseForbidden
-from vehicles.models import Vehicle
-
 from django.shortcuts import render
-
 from django.utils import timezone
+from client.models import Reservation
+from vehicles.models import Vehicle
 
 
 @login_required
@@ -150,9 +147,6 @@ def list_vehicle(request):
     return render(request, "dashboard/list_vehicle.html", {
         "vehicles": vehicles
     })
-
-from client.models import Reservation
-from vehicles.models import Vehicle
 
 @login_required
 def pro_reservations(request):

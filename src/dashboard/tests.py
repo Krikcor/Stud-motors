@@ -584,6 +584,83 @@ class ReservationDashboardTests(TestCase):
 
         self.assertContains(response, "pro")
 
+    def test_cannot_validate_twice(self):
+        self.client.login(username="pro", password="testpass123")
+
+        # Première validation
+        self.client.get(
+            reverse("reservation_decision",
+                    args=[self.reservation.id, "approve"])
+        )
+
+        # IMPORTANT
+        self.reservation.refresh_from_db()
+
+        first_validator = self.reservation.validated_by
+
+        # Deuxième tentative
+        self.client.get(
+            reverse("reservation_decision",
+                    args=[self.reservation.id, "refuse"])
+        )
+
+        self.reservation.refresh_from_db()
+
+        # Le validateur ne doit pas changer
+        self.assertEqual(self.reservation.validated_by, first_validator)
+        self.assertEqual(
+            self.reservation.status,
+            Reservation.STATUS_APPROVED
+        )
+
+    def test_second_pro_cannot_override_validation(self):
+        # Création second pro
+        second_pro = User.objects.create_user(
+            username="pro2",
+            password="testpass123"
+        )
+        Profile.objects.create(user=second_pro, role="pro")
+
+        # Premier pro valide
+        self.client.login(username="pro", password="testpass123")
+        self.client.get(
+            reverse("reservation_decision",
+                    args=[self.reservation.id, "approve"])
+        )
+        self.client.logout()
+
+        # Deuxième pro tente de modifier
+        self.client.login(username="pro2", password="testpass123")
+        self.client.get(
+            reverse("reservation_decision",
+                    args=[self.reservation.id, "refuse"])
+        )
+
+        self.reservation.refresh_from_db()
+
+        # Doit rester validé par le premier pro
+        self.assertEqual(self.reservation.validated_by.username, "pro")
+        self.assertEqual(
+            self.reservation.status,
+            Reservation.STATUS_APPROVED
+        )
+
+    def test_validation_date_displayed(self):
+        self.client.login(username="pro", password="testpass123")
+
+        self.client.get(
+            reverse("reservation_decision",
+                    args=[self.reservation.id, "approve"])
+        )
+
+        response = self.client.get(reverse("pro_reservations"))
+
+        # Vérifie que l’année actuelle apparaît
+        from datetime import datetime
+        current_year = datetime.now().year
+
+        self.assertContains(response, str(current_year))
+
 
 class ChangeVehicleTypeTests(TestCase):
 

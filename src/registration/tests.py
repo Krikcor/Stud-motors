@@ -95,6 +95,37 @@ class RegistrationTests(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
+    def test_register_duplicate_username_case_insensitive(self):
+        User.objects.create_user(
+            username='Jean123',
+            email='other@example.com',
+            password='Testpassword123'
+        )
+
+        response = self.client.post(self.register_url, self.valid_data)
+
+        self.assertEqual(response.status_code, 200)
+
+        # Toujours un seul utilisateur
+        self.assertEqual(User.objects.filter(username__iexact='jean123').count(), 1)
+
+        self.assertContains(response, "déjà utilisé")
+
+    def test_no_profile_created_if_username_duplicate(self):
+        User.objects.create_user(
+            username='jean123',
+            email='other@example.com',
+            password='Testpassword123'
+        )
+
+        self.client.post(self.register_url, self.valid_data)
+
+        # Toujours un seul user
+        self.assertEqual(User.objects.filter(username='jean123').count(), 1)
+
+        # Toujours un seul profil associé
+        self.assertEqual(Profile.objects.count(), 0)
+
 
 from django.core import mail
 
