@@ -19,13 +19,11 @@ class Reservation(models.Model):
     ASSURANCE = "assurance"
     ASSISTANCE = "assistance"
     MAINTENANCE = "maintenance"
-    TECHNICAL = "technical"
 
     RENTAL_OPTIONS = [
         (ASSURANCE, "Assurance tous risques"),
         (ASSISTANCE, "Assistance dépannage"),
         (MAINTENANCE, "Entretien et SAV"),
-        (TECHNICAL, "Contrôle technique"),
     ]
 
     rental_options = models.JSONField(

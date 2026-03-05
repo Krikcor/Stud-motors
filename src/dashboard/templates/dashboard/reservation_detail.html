@@ -69,14 +69,16 @@
     <hr>
 {% endif %}
 
-<a href="{% url 'reservation_decision' reservation.id 'approve' %}"
-   class="btn btn-success">
-   Accepter
-</a>
+{% if reservation.status == "pending" %}
+    <a href="{% url 'reservation_decision' reservation.id 'approve' %}"
+       class="btn btn-success">
+       Accepter
+    </a>
 
-<a href="{% url 'reservation_decision' reservation.id 'refuse' %}"
-   class="btn btn-danger">
-   Refuser
-</a>
+    <a href="{% url 'reservation_decision' reservation.id 'refuse' %}"
+       class="btn btn-danger">
+       Refuser
+    </a>
+{% endif %}
 
 {% endblock %}
