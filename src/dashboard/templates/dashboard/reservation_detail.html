@@ -10,18 +10,64 @@
 
 <h4>Adresse</h4>
 <p>
-{{ reservation.address }}<br>
-{{ reservation.postal_code }} {{ reservation.city }}<br>
-{{ reservation.country }}
+    {{ reservation.address }}<br>
+    {{ reservation.postal_code }} {{ reservation.city }}<br>
+    {{ reservation.country }}
 </p>
 
 <hr>
 
-<h4>Documents</h4>
+{% if reservation.vehicle.vehicle_type == "rental" %}
+    <h4>Documents</h4>
 
-<a href="{{ reservation.driver_license.url }}">Voir le Permis</a><br>
+    {% if reservation.driver_license %}
+        <p>
+            Permis de conduire :
+            <a href="{{ reservation.driver_license.url }}">Voir</a>
+        </p>
+    {% else %}
+        <p>Permis de conduire : Aucun document fourni.</p>
+    {% endif %}
 
-<hr>
+    {% if reservation.identity_document %}
+        <p>
+            Pièce d'identité :
+            <a href="{{ reservation.identity_document.url }}">Voir</a>
+        </p>
+    {% else %}
+        <p>Pièce d'identité : Aucun document fourni.</p>
+    {% endif %}
+
+    {% if reservation.proof_of_address %}
+        <p>
+            Justificatif de domicile :
+            <a href="{{ reservation.proof_of_address.url }}">Voir</a>
+        </p>
+    {% else %}
+        <p>Justificatif de domicile : Aucun document fourni.</p>
+    {% endif %}
+
+    <hr>
+
+    <h4>Options choisies</h4>
+    {% if reservation.rental_options %}
+        <ul>
+        {% for option in reservation.rental_options %}
+            <li>
+                {% for key, label in reservation.RENTAL_OPTIONS %}
+                    {% if key == option %}
+                        {{ label }}
+                    {% endif %}
+                {% endfor %}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucune option choisie.</p>
+    {% endif %}
+
+    <hr>
+{% endif %}
 
 <a href="{% url 'reservation_decision' reservation.id 'approve' %}"
    class="btn btn-success">

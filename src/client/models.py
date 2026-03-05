@@ -15,6 +15,38 @@ class Reservation(models.Model):
         (STATUS_REFUSED, "Refusée"),
     ]
 
+    # OPTIONS LOCATION
+    ASSURANCE = "assurance"
+    ASSISTANCE = "assistance"
+    MAINTENANCE = "maintenance"
+    TECHNICAL = "technical"
+
+    RENTAL_OPTIONS = [
+        (ASSURANCE, "Assurance tous risques"),
+        (ASSISTANCE, "Assistance dépannage"),
+        (MAINTENANCE, "Entretien et SAV"),
+        (TECHNICAL, "Contrôle technique"),
+    ]
+
+    rental_options = models.JSONField(
+        blank=True,
+        null=True,
+        help_text="Options sélectionnées pour la location"
+    )
+
+    # Documents supplémentaires
+    identity_document = models.FileField(
+        upload_to="reservations/documents/",
+        null=True,
+        blank=True
+    )
+
+    proof_of_address = models.FileField(
+        upload_to="reservations/documents/",
+        null=True,
+        blank=True
+    )
+
     user = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,

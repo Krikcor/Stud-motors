@@ -1,10 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}Réservation véhicule{% endblock %}
+{% block title %}
+    {% if vehicle.vehicle_type == "rental" %}
+        Demande de location
+    {% else %}
+        Demande d'achat
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 
-<h1>Réserver : {{ vehicle.brand }} {{ vehicle.model }}</h1>
+<h1>
+    {% if vehicle.vehicle_type == "rental" %}
+        Demande de location :
+    {% else %}
+        Demande d'achat :
+    {% endif %}
+    {{ vehicle.brand }} {{ vehicle.model }}
+</h1>
 
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
@@ -13,49 +26,95 @@
 
     <h2>Informations personnelles</h2>
 
-    {{ form.phone.label_tag }} {{ form.phone }}
-    {{ form.phone.errors }}
-    <br>
+    <p>
+        {{ form.phone.label_tag }}<br>
+        {{ form.phone }}
+        {{ form.phone.errors }}
+    </p>
 
-    {{ form.address.label_tag }} {{ form.address }}
-    {{ form.address.errors }}
-    <br>
+    <p>
+        {{ form.address.label_tag }}<br>
+        {{ form.address }}
+        {{ form.address.errors }}
+    </p>
 
-    {{ form.city.label_tag }} {{ form.city }}
-    {{ form.city.errors }}
-    <br>
+    <p>
+        {{ form.city.label_tag }}<br>
+        {{ form.city }}
+        {{ form.city.errors }}
+    </p>
 
-    {{ form.postal_code.label_tag }} {{ form.postal_code }}
-    {{ form.postal_code.errors }}
-    <br>
+    <p>
+        {{ form.postal_code.label_tag }}<br>
+        {{ form.postal_code }}
+        {{ form.postal_code.errors }}
+    </p>
 
-    {{ form.country.label_tag }} {{ form.country }}
-    {{ form.country.errors }}
+    <p>
+        {{ form.country.label_tag }}<br>
+        {{ form.country }}
+        {{ form.country.errors }}
+    </p>
 
-    <h2>Documents</h2>
+    {% if vehicle.vehicle_type == "rental" %}
+        <h2>Documents</h2>
 
-    <p>Permis de conduire :</p>
-    {{ form.driver_license }}
-    {{ form.driver_license.errors }}
+        <p>Permis de conduire :</p>
+        <p>
+            {{ form.driver_license }}
+            {{ form.driver_license.errors }}
+        </p>
+
+        <p>Pièce d'identité (facultatif) :</p>
+        <p>
+            {{ form.identity_document }}
+            {{ form.identity_document.errors }}
+        </p>
+
+        <p>Justificatif de domicile (facultatif) :</p>
+        <p>
+            {{ form.proof_of_address }}
+            {{ form.proof_of_address.errors }}
+        </p>
+    {% endif %}
+
+    {% if form.rental_options %}
+        <h2>Options de location</h2>
+        {{ form.rental_options }}
+        {{ form.rental_options.errors }}
+    {% endif %}
 
     <h2>Conditions</h2>
 
-    <label>
-        {{ form.accepted_terms }}
-        J'accepte les conditions générales de location.
-    </label>
-    {{ form.accepted_terms.errors }}
+    <p>
+        <label>
+            {{ form.accepted_terms }}
+            {% if vehicle.vehicle_type == "rental" %}
+                J'accepte les conditions générales de location.
+            {% else %}
+                J'accepte les conditions générales de vente.
+            {% endif %}
+        </label>
+        {{ form.accepted_terms.errors }}
+    </p>
+
+    <p>
+        <label>
+            {{ form.accepted_gdpr }}
+            J'accepte le traitement de mes données personnelles (RGPD).
+        </label>
+        {{ form.accepted_gdpr.errors }}
+    </p>
+
     <br>
 
-    <label>
-        {{ form.accepted_gdpr }}
-        J'accepte le traitement de mes données personnelles (RGPD).
-    </label>
-    {{ form.accepted_gdpr.errors }}
-
-    <br><br>
-
-    <button type="submit">Valider la réservation</button>
+    <button type="submit" class="btn btn-primary">
+        {% if vehicle.vehicle_type == "rental" %}
+            Valider la demande de location
+        {% else %}
+            Valider la demande d'achat
+        {% endif %}
+    </button>
 
 </form>
 
