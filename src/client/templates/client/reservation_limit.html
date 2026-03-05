@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Limite de demandes atteinte</h2>
+
+<p>
+Vous avez déjà {{ limit }} demandes de réservation en cours de traitement.
+</p>
+
+<p>
+Veuillez attendre qu'un professionnel traite vos dossiers avant d'effectuer une nouvelle demande.
+</p>
+
+<a href="{% url 'vehicle_list' %}" class="btn btn-primary">
+Retour aux véhicules
+</a>
+
+{% endblock %}

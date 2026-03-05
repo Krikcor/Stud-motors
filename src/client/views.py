@@ -19,12 +19,23 @@ def client_dashboard(request):
     """
     Dashboard client : afficher toutes les réservations du client.
     """
-    reservations = Reservation.objects.filter(user=request.user).order_by("-created_at")
+
+    reservations = Reservation.objects.filter(
+        user=request.user
+    ).order_by("-created_at")
+
+    pending_count = reservations.filter(
+        status=Reservation.STATUS_PENDING
+    ).count()
 
     return render(
         request,
         "client/pageclient.html",
-        {"reservations": reservations}
+        {
+            "reservations": reservations,
+            "pending_count": pending_count,
+            "pending_limit": 4,
+        }
     )
 
 
@@ -39,6 +50,19 @@ def reservation_form(request, slug):
     # Seuls les comptes client peuvent réserver
     if request.user.profile.role != "client":
         raise PermissionDenied("Seuls les clients peuvent effectuer une réservation.")
+
+    # Limite de réservations en attente
+    pending_count = Reservation.objects.filter(
+        user=request.user,
+        status=Reservation.STATUS_PENDING
+    ).count()
+
+    if pending_count >= 4:
+        return render(
+            request,
+            "client/reservation_limit.html",
+            {"limit": 4}
+        )
 
     # Bloquer si le véhicule est vendu
     if vehicle.status == Vehicle.SOLD:

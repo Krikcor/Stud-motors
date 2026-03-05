@@ -240,6 +240,99 @@ class ReservationTests(TestCase):
             Vehicle.AVAILABLE
         )
 
+    # LIMIT 4 PENDING RESERVATIONS
+
+    def test_user_can_have_four_pending_reservations(self):
+
+        vehicles = []
+
+        for i in range(4):
+            v = Vehicle.objects.create(
+                brand="Brand",
+                model=f"Model{i}",
+                engine="V6",
+                year=2020,
+                color="Black",
+                mileage=10000,
+                vehicle_type=Vehicle.RENTAL,
+                price=10000,
+                status=Vehicle.AVAILABLE,
+            )
+            vehicles.append(v)
+
+        for v in vehicles:
+            Reservation.objects.create(
+                user=self.user,
+                vehicle=v,
+                phone="0600000000",
+                address="1 rue test",
+                city="Paris",
+                postal_code="75000",
+                country="France",
+                accepted_terms=True,
+                accepted_gdpr=True,
+                driver_license="licenses/test.pdf",
+                status=Reservation.STATUS_PENDING
+            )
+
+        count = Reservation.objects.filter(
+            user=self.user,
+            status=Reservation.STATUS_PENDING
+        ).count()
+
+        self.assertEqual(count, 4)
+
+
+    def test_user_blocked_after_four_pending_reservations(self):
+
+        vehicles = []
+
+        for i in range(5):
+            v = Vehicle.objects.create(
+                brand="Brand",
+                model=f"Model{i}",
+                engine="V6",
+                year=2020,
+                color="Black",
+                mileage=10000,
+                vehicle_type=Vehicle.RENTAL,
+                price=10000,
+                status=Vehicle.AVAILABLE,
+            )
+            vehicles.append(v)
+
+        # Création de 4 réservations pending
+        for i in range(4):
+            Reservation.objects.create(
+                user=self.user,
+                vehicle=vehicles[i],
+                phone="0600000000",
+                address="1 rue test",
+                city="Paris",
+                postal_code="75000",
+                country="France",
+                accepted_terms=True,
+                accepted_gdpr=True,
+                driver_license="licenses/test.pdf",
+                status=Reservation.STATUS_PENDING
+            )
+
+        # Tentative de 5ème réservation
+        url = reverse("reservation_form", kwargs={"slug": vehicles[4].slug})
+
+        response = self.client.post(url, self.valid_data)
+
+        # La page de limite doit être affichée
+        self.assertEqual(response.status_code, 200)
+
+        # Toujours seulement 4 réservations
+        count = Reservation.objects.filter(
+            user=self.user,
+            status=Reservation.STATUS_PENDING
+        ).count()
+
+        self.assertEqual(count, 4)
+
 
 class ClientDashboardTests(TestCase):
 

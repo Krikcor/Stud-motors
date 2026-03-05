@@ -27,6 +27,7 @@
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
+
                     <h5 class="card-title">Actions rapides</h5>
 
                     <a href="{% url 'vehicle_list' %}"
@@ -42,6 +43,7 @@
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
+
                     <h5 class="card-title">Mon profil : {{ user.username }}</h5>
 
                     <p><strong>Email :</strong> {{ user.email }}</p>
@@ -60,6 +62,32 @@
                             Supprimer mon compte
                         </button>
                     </form>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- DEMANDES EN COURS -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+
+                    <h5 class="card-title">Demandes en cours</h5>
+
+                    <h2 class="text-center">
+                        {{ pending_count }} / {{ pending_limit }}
+                    </h2>
+
+                    {% if pending_count >= pending_limit %}
+                        <p class="text-danger text-center">
+                            Limite atteinte.
+                        </p>
+                    {% else %}
+                        <p class="text-muted text-center">
+                            Vous pouvez encore faire
+                            {{ pending_limit|add:"-"|add:pending_count }} demande(s).
+                        </p>
+                    {% endif %}
 
                 </div>
             </div>
@@ -93,7 +121,6 @@
                         {% for reservation in reservations %}
                         <tr>
 
-                            <!-- VEHICULE -->
                             <td>
                                 <strong>
                                     {{ reservation.vehicle.brand }}
@@ -101,9 +128,8 @@
                                 </strong>
                             </td>
 
-                            <!-- TYPE -->
                             <td>
-                                {% if reservation.vehicle.transaction_type == "rental" %}
+                                {% if reservation.vehicle.vehicle_type == "rental" %}
                                     <span class="badge bg-info text-dark">
                                         Location
                                     </span>
@@ -114,12 +140,10 @@
                                 {% endif %}
                             </td>
 
-                            <!-- DATE -->
                             <td>
                                 {{ reservation.created_at|date:"d/m/Y" }}
                             </td>
 
-                            <!-- STATUT -->
                             <td>
 
                                 {% if reservation.status == "pending" %}
