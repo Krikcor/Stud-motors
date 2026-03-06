@@ -6,6 +6,11 @@ from django.contrib.auth.views import LogoutView
 urlpatterns = [
     path('', views.client_dashboard, name='client_dashboard'),
     path(
+    "reservation/success/",
+    views.reservation_success,
+    name="reservation_success"
+    ),
+    path(
         "reservation/<slug:slug>/",
         reservation_form,
         name="reservation_form"
@@ -21,5 +26,6 @@ urlpatterns = [
     name="delete_account"
     ),
     path("edit-profile/", views.edit_profile, name="edit_profile"),
+
 ]
 

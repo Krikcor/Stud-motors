@@ -101,7 +101,7 @@ def reservation_form(request, slug):
 
             # Si quelqu'un l'a réservé entre temps
             if vehicle.status != Vehicle.AVAILABLE:
-                form.add_error(None, "Désolé, ce véhicule vient d'être réservé.")
+                form.add_error(None, "Désolé, ce véhicule vient d'être réservé, veuillez retourner vers la page de vehicule via la barre de navigation.")
                 return render(
                     request,
                     "client/reservation_form.html",
@@ -118,7 +118,7 @@ def reservation_form(request, slug):
             vehicle.status = Vehicle.RESERVED
             vehicle.save()
 
-        return redirect("vehicle_list")
+        return redirect("reservation_success")
 
     # GET
     form = ReservationForm()
@@ -222,3 +222,10 @@ def edit_profile(request):
         "form": form,
         "password_form": password_form
     })
+
+@login_required
+def reservation_success(request):
+    """
+    Page de confirmation après création d'une réservation.
+    """
+    return render(request, "client/success.html")

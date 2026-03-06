@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}
+Réservation enregistrée
+{% endblock %}
+
+{% block content %}
+
+<h1>Réservation enregistrée</h1>
+
+<p>
+Votre demande de réservation est bien prise en compte.
+Nous traitons votre demande dans les plus brefs délais.
+Merci.
+</p>
+
+<br>
+
+<a href="{% url 'client_dashboard' %}" class="btn btn-primary">
+    Retourner vers mon dashboard
+</a>
+
+{% endblock %}
