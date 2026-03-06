@@ -333,6 +333,53 @@ class ReservationTests(TestCase):
 
         self.assertEqual(count, 4)
 
+    def test_atomic_check_prevents_double_reservation(self):
+        """
+        Simule deux utilisateurs qui réservent presque en même temps.
+        Le deuxième POST ne doit pas créer de réservation.
+        """
+
+        other_user = User.objects.create_user(
+            username="otherclient",
+            password="password123"
+        )
+
+        Profile.objects.create(
+            user=other_user,
+            role="client"
+        )
+
+        Reservation.objects.create(
+            user=other_user,
+            vehicle=self.vehicle,
+            phone="0600000000",
+            address="Other street",
+            city="Lyon",
+            postal_code="69000",
+            country="France",
+            accepted_terms=True,
+            accepted_gdpr=True,
+            driver_license="licenses/test.pdf",
+        )
+
+        self.vehicle.status = Vehicle.RESERVED
+        self.vehicle.save()
+
+        response = self.client.post(self.url, self.valid_data)
+
+        # redirect vers vehicle_list
+        self.assertEqual(response.status_code, 302)
+
+        # Toujours une seule réservation
+        self.assertEqual(
+            Reservation.objects.filter(vehicle=self.vehicle).count(),
+            1
+        )
+
+        reservation = Reservation.objects.get(vehicle=self.vehicle)
+
+        self.assertEqual(reservation.user, other_user)
+
 
 class ClientDashboardTests(TestCase):
 

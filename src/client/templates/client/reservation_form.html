@@ -67,13 +67,13 @@
 
         {% if vehicle.vehicle_type == "rental" %}
 
-        <p>Pièce d'identité (facultatif) :</p>
+        <p>Pièce d'identité :</p>
         <p>
             {{ form.identity_document }}
             {{ form.identity_document.errors }}
         </p>
 
-        <p>Justificatif de domicile (facultatif) :</p>
+        <p>Justificatif de domicile :</p>
         <p>
             {{ form.proof_of_address }}
             {{ form.proof_of_address.errors }}
@@ -120,5 +120,29 @@
     </button>
 
 </form>
+
+{% if vehicle.vehicle_type == "rental" %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const identityInput = document.querySelector('input[name="identity_document"]');
+    const addressInput = document.querySelector('input[name="proof_of_address"]');
+    const form = document.querySelector('form');
+
+    form.addEventListener("submit", function(event) {
+        if(identityInput && !identityInput.files.length) {
+            alert("Veuillez fournir une pièce d'identité.");
+            event.preventDefault();
+            return;
+        }
+        if(addressInput && !addressInput.files.length) {
+            alert("Veuillez fournir un justificatif de domicile.");
+            event.preventDefault();
+            return;
+        }
+    });
+});
+</script>
+
+{% endif %}
 
 {% endblock %}

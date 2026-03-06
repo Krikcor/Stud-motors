@@ -13,6 +13,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import update_session_auth_hash
 from .forms import ClientUpdateForm, OptionalPasswordChangeForm
 
+from django.db import transaction
+
 
 @login_required
 def client_dashboard(request):
@@ -73,6 +75,7 @@ def reservation_form(request, slug):
         return redirect("vehicle_list")
 
     if request.method == "POST":
+
         form = ReservationForm(request.POST, request.FILES)
 
         if not form.is_valid():
@@ -90,15 +93,30 @@ def reservation_form(request, slug):
                 {"form": form, "vehicle": vehicle}
             )
 
-        # Création réservation
-        reservation = form.save(commit=False)
-        reservation.user = request.user
-        reservation.vehicle = vehicle
-        reservation.save()
+        # Transaction atomique pour éviter les réservations simultanées
+        with transaction.atomic():
 
-        # Passage en "en cours"
-        vehicle.status = Vehicle.RESERVED
-        vehicle.save()
+            # Recharge l'état du véhicule depuis la base
+            vehicle.refresh_from_db()
+
+            # Si quelqu'un l'a réservé entre temps
+            if vehicle.status != Vehicle.AVAILABLE:
+                form.add_error(None, "Désolé, ce véhicule vient d'être réservé.")
+                return render(
+                    request,
+                    "client/reservation_form.html",
+                    {"form": form, "vehicle": vehicle}
+                )
+
+            # Création réservation
+            reservation = form.save(commit=False)
+            reservation.user = request.user
+            reservation.vehicle = vehicle
+            reservation.save()
+
+            # Passage en "en cours"
+            vehicle.status = Vehicle.RESERVED
+            vehicle.save()
 
         return redirect("vehicle_list")
 
@@ -109,7 +127,6 @@ def reservation_form(request, slug):
         "client/reservation_form.html",
         {"form": form, "vehicle": vehicle}
     )
-
 
 @login_required
 def client_reservation_detail(request, pk):
