@@ -1,13 +1,102 @@
-<h2>Modifier mon profil {{ user.username }}</h2>
+{% extends "base.html" %}
 
-<form method="post">
-    {% csrf_token %}
+{% block title %}
+Modifier mon profil - {{ user.username }}
+{% endblock %}
 
-    <h3>Informations personnelles</h3>
-    {{ form.as_p }}
+{% block content %}
 
-    <h3>Changer le mot de passe</h3>
-    {{ password_form.as_p }}
+<style>
+/* Container principal centré verticalement et horizontalement */
+.profile-form-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 80px); /* soustrait la hauteur approximative de la navbar */
+    padding: 20px;
+    background: linear-gradient(135deg, #080808 0%, #1a1a1a 100%);
+}
 
-    <button type="submit">Enregistrer</button>
-</form>
+/* Card blanche */
+.profile-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    max-width: 700px;
+    width: 100%;
+}
+
+/* Titres */
+.profile-card h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: black;
+}
+
+.profile-card h3 {
+    margin-top: 25px;
+    margin-bottom: 15px;
+    color: black;
+    font-size: 1.3rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+/* Form fields */
+.profile-card p {
+    margin-bottom: 15px;
+    color: black;
+}
+
+.profile-card input,
+.profile-card select,
+.profile-card textarea {
+    width: 100%;
+    padding: 8px 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    color: black;
+}
+
+/* Bouton */
+.submit-area {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.submit-area button {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    border-radius: 6px;
+}
+</style>
+
+<div class="profile-form-wrapper">
+    <div class="profile-card">
+
+        <h2>Modifier mon profil : {{ user.username }}</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Informations personnelles -->
+            <h3>Informations personnelles</h3>
+            {{ form.as_p }}
+
+            <!-- Changer le mot de passe -->
+            <h3>Changer le mot de passe</h3>
+            {{ password_form.as_p }}
+
+            <div class="submit-area">
+                <button type="submit" class="btn btn-secondary">
+                    Enregistrer
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

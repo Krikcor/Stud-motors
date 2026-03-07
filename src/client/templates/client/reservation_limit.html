@@ -1,19 +1,64 @@
 {% extends "base.html" %}
 
+{% block title %}Limite de demandes atteinte{% endblock %}
+
 {% block content %}
 
-<h2>Limite de demandes atteinte</h2>
+<style>
+.limit-page-container {
+    min-height: 80vh; /* Remplit presque toute la hauteur */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* centre verticalement */
+    align-items: center;     /* centre horizontalement */
+    text-align: center;
+    padding: 40px 20px;
+    color: black; /* Texte visible */
+}
 
-<p>
-Vous avez déjà {{ limit }} demandes de réservation en cours de traitement.
-</p>
+.limit-card {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    max-width: 600px;
+    width: 100%;
+}
 
-<p>
-Veuillez attendre qu'un professionnel traite vos dossiers avant d'effectuer une nouvelle demande.
-</p>
+.limit-card h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
 
-<a href="{% url 'vehicle_list' %}" class="btn btn-primary">
-Retour aux véhicules
-</a>
+.limit-card p {
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+
+.limit-card a.btn {
+    margin-top: 20px;
+    padding: 12px 25px;
+    font-size: 1.1rem;
+}
+</style>
+
+<div class="limit-page-container">
+    <div class="limit-card">
+        <h2>Limite de demandes atteinte</h2>
+
+        <p>
+            Vous avez déjà {{ limit }} demandes de réservation en cours de traitement.
+        </p>
+
+        <p>
+            Veuillez attendre qu'un professionnel traite vos dossiers avant d'effectuer une nouvelle demande.
+        </p>
+
+        <a href="{% url 'vehicle_list' %}" class="btn btn-secondary">
+            Retour aux véhicules
+        </a>
+    </div>
+</div>
 
 {% endblock %}
