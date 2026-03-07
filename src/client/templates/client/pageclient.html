@@ -9,7 +9,7 @@
     <!-- HEADER -->
     <div class="mb-4">
         <h1>Bienvenue {{ user.first_name }}</h1>
-        <p class="text-muted">
+        <p class="text-secondary">
             Consultez vos demandes (achat et location) et leur état de validation.
         </p>
 
@@ -28,10 +28,10 @@
             <div class="card shadow-sm h-100">
                 <div class="card-body">
 
-                    <h5 class="card-title">Actions rapides</h5>
+                    <h5 class="card-title">Retour</h5>
 
                     <a href="{% url 'vehicle_list' %}"
-                       class="btn btn-primary w-100 mb-2">
+                       class="btn btn-secondary w-100 mb-2">
                         Voir les véhicules
                     </a>
 
@@ -84,8 +84,6 @@
                         </p>
                     {% else %}
                         <p class="text-muted text-center">
-                            Vous pouvez encore faire
-                            {{ pending_limit|add:"-"|add:pending_count }} demande(s).
                         </p>
                     {% endif %}
 
@@ -102,7 +100,7 @@
         <div class="card-body">
 
             <h4 class="card-title mb-3">
-                Mes demandes
+                Mes demandes :
             </h4>
 
             {% if reservations %}

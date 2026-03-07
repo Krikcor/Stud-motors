@@ -3,67 +3,178 @@
 {% block title %}Inscription - M-Motors{% endblock %}
 
 {% block content %}
-<h1>Inscription client</h1>
 
-{% if messages %}
-    {% for message in messages %}
-        <p style="color:green;">{{ message }}</p>
-    {% endfor %}
-{% endif %}
+<style>
 
-<form method="post">
-    {% csrf_token %}
+/* Wrapper plein écran */
+.register-wrapper{
+    min-height:calc(100vh - 120px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px 20px;
+}
 
-    {% if form.non_field_errors %}
-        <div style="color:red;">
-            {{ form.non_field_errors }}
-        </div>
-        <br>
-    {% endif %}
+/* Carte formulaire */
+.register-card{
+    width:100%;
+    max-width:460px;
+    background:white;
+    padding:45px 40px;
+    border-radius:14px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    color:black;
+}
 
-    <label>Prénom :</label>
-    {{ form.first_name }}
-    {% if form.first_name.errors %}
-        <div style="color:red;">{{ form.first_name.errors }}</div>
-    {% endif %}
-    <br><br>
+/* Titre */
+.register-title{
+    text-align:center;
+    font-weight:700;
+    margin-bottom:35px;
+}
 
-    <label>Nom :</label>
-    {{ form.last_name }}
-    {% if form.last_name.errors %}
-        <div style="color:red;">{{ form.last_name.errors }}</div>
-    {% endif %}
-    <br><br>
+/* Champs */
+.form-group{
+    margin-bottom:20px;
+}
 
-    <label>Email :</label>
-    {{ form.email }}
-    {% if form.email.errors %}
-        <div style="color:red;">{{ form.email.errors }}</div>
-    {% endif %}
-    <br><br>
+/* Labels */
+.register-card label{
+    font-weight:500;
+    margin-bottom:6px;
+    display:block;
+}
 
-    <label>Nom d'utilisateur :</label>
-    {{ form.username }}
-    {% if form.username.errors %}
-        <div style="color:red;">{{ form.username.errors }}</div>
-    {% endif %}
-    <br><br>
+/* Inputs */
+.register-card input{
+    width:100%;
+    padding:12px 14px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    font-size:15px;
+    transition:all .2s ease;
+}
 
-    <label>Mot de passe :</label>
-    {{ form.password1 }}
-    {% if form.password1.errors %}
-        <div style="color:red;">{{ form.password1.errors }}</div>
-    {% endif %}
-    <br><br>
+/* Focus */
+.register-card input:focus{
+    outline:none;
+    border-color:#0d6efd;
+    box-shadow:0 0 0 3px rgba(13,110,253,0.15);
+}
 
-    <label>Confirmation mot de passe :</label>
-    {{ form.password2 }}
-    {% if form.password2.errors %}
-        <div style="color:red;">{{ form.password2.errors }}</div>
-    {% endif %}
-    <br><br>
+/* Erreurs */
+.form-error{
+    color:#dc3545;
+    font-size:14px;
+    margin-top:4px;
+}
 
-    <button type="submit">S'inscrire</button>
-</form>
+/* Messages succès */
+.success-message{
+    color:green;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+/* Bouton */
+.register-btn{
+    width:100%;
+    padding:14px;
+    font-size:16px;
+    font-weight:600;
+    margin-top:10px;
+}
+
+/* Mobile */
+@media (max-width:576px){
+
+    .register-card{
+        padding:35px 25px;
+    }
+
+}
+
+</style>
+
+
+<div class="register-wrapper">
+
+    <div class="register-card">
+
+        <h1 class="register-title">Créez un compte :</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="success-message">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label>Prénom</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                    <div class="form-error">{{ form.first_name.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>Nom</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                    <div class="form-error">{{ form.last_name.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <div class="form-error">{{ form.email.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>Nom d'utilisateur</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="form-error">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>Mot de passe</label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                    <div class="form-error">{{ form.password1.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>Confirmation mot de passe</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                    <div class="form-error">{{ form.password2.errors }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-secondary register-btn">
+                S'inscrire
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
 
 {% endblock %}

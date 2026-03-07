@@ -3,23 +3,152 @@
 {% block title %}Connexion - M-Motors{% endblock %}
 
 {% block content %}
-<h1>Connexion</h1>
 
-<form method="post">
-    {% csrf_token %}
+<style>
 
-    <label for="username">Nom d'utilisateur :</label>
-    <input type="text" name="username" id="username" required autofocus autocomplete="username" placeholder="Entrez votre nom d'utilisateur"><br><br>
+/* Wrapper plein écran */
+.login-wrapper{
+    min-height:calc(100vh - 120px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px 20px;
+}
 
-    <label for="password">Mot de passe :</label>
-    <input type="password" name="password" id="password" required autocomplete="current-password" placeholder="Entrez votre mot de passe"><br><br>
+/* Carte formulaire */
+.login-card{
+    width:100%;
+    max-width:420px;
+    background:white;
+    padding:45px 35px;
+    border-radius:14px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    color:black;
+}
 
-    <button type="submit">Se connecter</button>
-</form>
+/* Titre */
+.login-title{
+    text-align:center;
+    font-weight:700;
+    margin-bottom:35px;
+    font-size:1.8rem;
+}
 
-<p>
-    <a href="{% url 'register' %}">Créer un compte</a> |
-    <a href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
-</p>
+/* Champs */
+.form-group{
+    margin-bottom:20px;
+}
+
+/* Labels */
+.login-card label{
+    font-weight:500;
+    margin-bottom:6px;
+    display:block;
+}
+
+/* Inputs */
+.login-card input{
+    width:100%;
+    padding:12px 14px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    font-size:15px;
+    transition:all .2s ease;
+}
+
+/* Focus */
+.login-card input:focus{
+    outline:none;
+    border-color:#0d6efd;
+    box-shadow:0 0 0 3px rgba(13,110,253,0.15);
+}
+
+/* Erreurs */
+.form-error{
+    color:#dc3545;
+    font-size:14px;
+    margin-top:4px;
+}
+
+/* Messages succès */
+.success-message{
+    color:green;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+/* Bouton */
+.login-btn{
+    width:100%;
+    padding:14px;
+    font-size:16px;
+    font-weight:600;
+    margin-top:10px;
+}
+
+/* Liens */
+.login-links{
+    text-align:center;
+    margin-top:15px;
+}
+
+.login-links a{
+    text-decoration:none;
+    color:#0d6efd;
+    margin:0 6px;
+}
+
+.login-links a:hover{
+    text-decoration:underline;
+}
+
+/* Mobile */
+@media (max-width:576px){
+    .login-card{
+        padding:35px 25px;
+    }
+}
+
+</style>
+
+<div class="login-wrapper">
+
+    <div class="login-card">
+
+        <h1 class="login-title">Connexion</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="success-message">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur :</label>
+                <input type="text" name="username" id="username" required autofocus autocomplete="username" placeholder="Entrez votre nom d'utilisateur">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe :</label>
+                <input type="password" name="password" id="password" required autocomplete="current-password" placeholder="Entrez votre mot de passe">
+            </div>
+
+            <button type="submit" class="btn btn-dark login-btn">
+                Se connecter
+            </button>
+
+        </form>
+
+        <div class="login-links">
+            <a href="{% url 'register' %}">Créer un compte</a> |
+            <a href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
+        </div>
+
+    </div>
+
+</div>
 
 {% endblock %}
