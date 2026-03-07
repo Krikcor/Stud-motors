@@ -37,10 +37,27 @@
     margin-left: 10px;
 }
 
+
+    /* Logo navbar */
+.navbar-brand{
+    font-family: "Segoe UI", sans-serif;
+    font-weight: 700;
+    font-size: 1.35rem;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+}
+
+/* Roues du logo */
 .wheel-logo{
+    width: 22px;
+    height: 22px;
+    margin: 0 3px;
+    transform-origin: center;
     transition: transform 0.6s ease;
 }
 
+/* Animation au hover */
 .navbar-brand:hover .wheel-logo{
     transform: rotate(360deg);
 }
@@ -125,7 +142,7 @@
                 </li>
 
                 <li class="nav-item nav-btn">
-                    <a class="btn btn-primary btn-sm"
+                    <a class="btn btn-secondary btn-sm"
                        href="{% url 'login' %}">
                         Connexion
                     </a>
