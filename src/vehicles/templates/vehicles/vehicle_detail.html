@@ -4,67 +4,260 @@
 
 {% block content %}
 
-<h1>{{ vehicle.brand }} {{ vehicle.model }}</h1>
+<style>
 
-<!-- Image principale -->
-{% if vehicle.main_image %}
-    <img src="{{ vehicle.main_image.url }}"
-         alt="{{ vehicle.brand }} {{ vehicle.model }}"
-         style="width:500px; max-width:100%; border-radius:8px;">
-{% else %}
-    <p>Aucune image principale disponible.</p>
-{% endif %}
+/* Container général */
+.vehicle-detail {
+    margin-top: 30px;
+    color: black;
+}
 
-<hr>
+/* Card principale */
+.vehicle-main-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    margin-bottom: 40px;
+}
 
-<!-- Images secondaires -->
-<h3>Galerie</h3>
+/* Image principale */
+.vehicle-main-img {
+    width: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+}
 
-<div style="display:flex; gap:15px; flex-wrap:wrap;">
-    {% for img in vehicle.images.all %}
-        {% if img.image %}
-            <img src="{{ img.image.url }}"
-                 alt="Image {{ forloop.counter }} - {{ vehicle.brand }} {{ vehicle.model }}"
-                 style="width:200px; border-radius:6px;">
-        {% endif %}
-    {% empty %}
-        <p>Aucune image supplémentaire.</p>
-    {% endfor %}
+/* Bloc infos à droite */
+.vehicle-info-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 30px;
+    width: 100%;
+}
+
+/* Titre */
+.vehicle-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+/* Prix */
+.vehicle-price {
+    font-size: 26px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 20px;
+}
+
+/* Grille des caractéristiques */
+.vehicle-specs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+    margin: 20px 0;
+}
+
+.spec {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.spec-label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+}
+
+.spec-value {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+/* Bouton réserver */
+.reserve-btn {
+    margin-top: 20px;
+}
+
+/* Badges statut */
+.status-badge {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.status-reserved {
+    background: #ffc107;
+}
+
+.status-sold {
+    background: #6c757d;
+    color: white;
+}
+
+/* Galerie */
+.vehicle-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.vehicle-gallery img {
+    width: 180px;
+    border-radius: 8px;
+    transition: transform 0.25s ease;
+    cursor: pointer;
+}
+
+.vehicle-gallery img:hover {
+    transform: scale(1.05);
+}
+
+</style>
+
+
+<div class="container vehicle-detail">
+
+    <div class="vehicle-main-card">
+
+        <div class="row">
+
+            <!-- IMAGE PRINCIPALE -->
+            <div class="col-md-7">
+
+                {% if vehicle.main_image %}
+
+                    <img
+                        src="{{ vehicle.main_image.url }}"
+                        alt="{{ vehicle.brand }} {{ vehicle.model }}"
+                        class="vehicle-main-img"
+                    >
+
+                {% else %}
+
+                    <p>Aucune image principale disponible.</p>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- INFOS -->
+            <div class="col-md-5 d-flex">
+
+                <div class="vehicle-info-box">
+
+                    <h1 class="vehicle-title">
+                        {{ vehicle.brand }} {{ vehicle.model }}
+                    </h1>
+
+                    <div class="vehicle-price">
+                        {{ vehicle.price }} €
+                    </div>
+
+                    <div class="vehicle-specs">
+
+                        <div class="spec">
+                            <span class="spec-label">Année</span>
+                            <span class="spec-value">{{ vehicle.year }}</span>
+                        </div>
+
+                        <div class="spec">
+                            <span class="spec-label">Moteur</span>
+                            <span class="spec-value">{{ vehicle.engine }}</span>
+                        </div>
+
+                        <div class="spec">
+                            <span class="spec-label">Kilométrage</span>
+                            <span class="spec-value">{{ vehicle.mileage }} km</span>
+                        </div>
+
+                        <div class="spec">
+                            <span class="spec-label">Type</span>
+                            <span class="spec-value">{{ vehicle.get_vehicle_type_display }}</span>
+                        </div>
+
+                    </div>
+
+
+                    <!-- BOUTON / STATUT -->
+                    <div class="reserve-btn">
+
+                        {% if is_available %}
+
+                            {% if user.is_authenticated %}
+
+                                <a
+                                    href="{% url 'reservation_form' vehicle.slug %}"
+                                    class="btn btn-dark btn-lg"
+                                >
+                                    Réserver
+                                </a>
+
+                            {% else %}
+
+                                <a
+                                    href="{% url 'login' %}?next={% url 'reservation_form' vehicle.slug %}"
+                                    class="btn btn-dark btn-lg"
+                                >
+                                    Réservez (connexion requise)
+                                </a>
+
+                            {% endif %}
+
+                        {% elif is_reserved %}
+
+                            <span class="status-badge status-reserved">
+                                Véhicule en cours de réservation
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge status-sold">
+                                Vendu
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- GALERIE -->
+    <h3>Galerie</h3>
+
+    <div class="vehicle-gallery">
+
+        {% for img in vehicle.images.all %}
+
+            {% if img.image %}
+
+                <img
+                    src="{{ img.image.url }}"
+                    alt="Image {{ forloop.counter }} - {{ vehicle.brand }} {{ vehicle.model }}"
+                >
+
+            {% endif %}
+
+        {% empty %}
+
+            <p>Aucune image supplémentaire.</p>
+
+        {% endfor %}
+
+    </div>
+
 </div>
 
-<hr>
-
-<h3>Informations</h3>
-<ul>
-    <li>Année : {{ vehicle.year }}</li>
-    <li>Moteur : {{ vehicle.engine }}</li>
-    <li>Kilométrage : {{ vehicle.mileage }} km</li>
-    <li>Type : {{ vehicle.get_vehicle_type_display }}</li>
-    <li>Prix : {{ vehicle.price }} €</li>
-</ul>
-
-<hr>
-
-{% if is_available %}
-    {% if user.is_authenticated %}
-        <a href="{% url 'reservation_form' vehicle.slug %}"
-           style="background:#007bff; color:white; padding:10px 20px; border-radius:5px;">
-            Réserver
-        </a>
-    {% else %}
-        {# Redirection vers login avec next vers la page de formulaire de réservation #}
-        <a href="{% url 'login' %}?next={% url 'reservation_form' vehicle.slug %}"
-           style="background:#007bff; color:white; padding:10px 20px; border-radius:5px;">
-            Réservez (connexion requise)
-        </a>
-    {% endif %}
-{% elif is_reserved %}
-    <span style="background:#ffc107; color:black; padding:10px 20px; border-radius:5px;">
-        Véhicule en cours de réservation
-    </span>
-{% else %}
-    <span style="background:#6c757d; color:white; padding:10px 20px; border-radius:5px;">
-        Vendu
-    </span>
-{% endif %}
 {% endblock %}

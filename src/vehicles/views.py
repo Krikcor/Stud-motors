@@ -28,7 +28,7 @@ def vehicle_list(request):
         vehicles = vehicles.order_by(order_by)
 
     # Pagination
-    paginator = Paginator(vehicles, 18)
+    paginator = Paginator(vehicles, 16)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 

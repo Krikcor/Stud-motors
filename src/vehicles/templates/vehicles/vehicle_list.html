@@ -4,152 +4,301 @@
 
 {% block content %}
 
-<h1 style="margin-bottom:30px;">Nos véhicules</h1>
+<style>
+
+/* TITRE */
+
+.page-title{
+    margin-bottom:30px;
+    font-weight:700;
+    margin-top:30px;
+}
+
+
+/* FILTRES */
+
+.filters-box{
+    margin-bottom:40px;
+    padding:25px;
+    border:1px solid #e5e5e5;
+    border-radius:12px;
+    background:#f8f9fa;
+}
+
+
+
+label{
+    color:black;
+    font-weight:500;
+    }
+
+
+/* GRID */
+
+.vehicle-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap:30px;
+}
+
+
+/* CARD */
+
+.vehicle-card{
+    border:1px solid #e5e5e5;
+    border-radius:12px;
+    overflow:hidden;
+    background:white;
+    transition:all .25s ease;
+    position:relative;
+}
+
+.vehicle-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 10px 25px rgba(0,0,0,0.15);
+}
+
+
+/* IMAGE */
+
+.vehicle-img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+    transition:transform .3s ease;
+}
+
+.vehicle-card:hover .vehicle-img{
+    transform:scale(1.05);
+}
+
+
+/* BADGE */
+
+.vehicle-badge{
+    position:absolute;
+    top:12px;
+    left:12px;
+    background:#eee;
+    color:#c0392b;
+    padding:6px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+
+/* BODY */
+
+.vehicle-body{
+    padding:18px;
+}
+
+
+/* TITRE */
+
+.vehicle-title{
+    margin:0 0 6px 0;
+    font-size:18px;
+    font-weight:600;
+}
+
+
+/* MARQUE */
+
+.vehicle-brand{
+    font-size:14px;
+    color:#888;
+}
+
+
+/* INFOS */
+
+.vehicle-info{
+    margin:6px 0;
+    color:#555;
+}
+
+
+/* PRIX */
+
+.vehicle-price{
+    font-size:20px;
+    font-weight:700;
+    color:#111;
+}
+
+
+/* TYPE */
+
+.vehicle-type{
+    font-size:13px;
+    color:#777;
+}
+
+
+/* BOUTON */
+
+.vehicle-btn{
+    margin-top:12px;
+    width:100%;
+}
+
+    /* FOOTER */
+.footer{
+    margin-top:80px;
+    padding:35px 0;
+    background:#111;
+    color:rgba(255,255,255,0.7);
+    text-align:center;
+}
+
+.footer a{
+    color:white;
+    text-decoration:none;
+}
+
+.footer a:hover{
+    text-decoration:underline;
+}
+
+</style>
+
+
+<div class="container">
+
+<h1 class="page-title">Nos véhicules</h1>
 
 
 <!-- FILTRES -->
 
-<div style="margin-bottom:40px; padding:25px; border:1px solid #e5e5e5; border-radius:12px; background:#f8f9fa; color:black;">
+<div class="filters-box">
 
-    <form method="get" style="display:flex; flex-wrap:wrap; gap:20px; align-items:end;">
+<form method="get" class="row g-3 align-items-end">
 
-        <!-- Type de véhicule -->
-        <div>
-            <label>Type</label><br>
-            {{ filter.form.vehicle_type }}
-        </div>
+<div class="col-md-2">
+<label>Type</label>
+{{ filter.form.vehicle_type }}
+</div>
 
-        <!-- Année minimale -->
-        <div>
-            <label>Année min</label><br>
-            {{ filter.form.min_year }}
-        </div>
+<div class="col-md-2">
+<label>Année min</label>
+{{ filter.form.min_year }}
+</div>
 
-        <!-- Kilométrage maximal -->
-        <div>
-            <label>Km max</label><br>
-            {{ filter.form.max_mileage }}
-        </div>
+<div class="col-md-2">
+<label>Km max</label>
+{{ filter.form.max_mileage }}
+</div>
 
-        <!-- Masquer les réservés -->
-        <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
-            {{ filter.form.hide_reserved }}
-            <label>Masquer les véhicules en cours de réservation</label>
-        </div>
+<div class="col-md-2">
+<label>Prix min</label>
+{{ filter.form.min_price }}
+</div>
 
-        <!-- Prix minimum -->
-        <div>
-            <label>Prix min</label><br>
-            {{ filter.form.min_price }}
-        </div>
+<div class="col-md-2">
+<label>Prix max</label>
+{{ filter.form.max_price }}
+</div>
 
-        <!-- Prix maximum -->
-        <div>
-            <label>Prix max</label><br>
-            {{ filter.form.max_price }}
-        </div>
+<div class="col-md-2">
+<label>Trier par</label>
+{{ filter.form.order_by }}
+</div>
 
-        <!-- Tri -->
-        <div>
-            <label>Trier par</label><br>
-            {{ filter.form.order_by }}
-        </div>
+<div class="col-md-5 d-flex align-items-end">
+    <div class="form-check mb-2">
+        {{ filter.form.hide_reserved }}
+        <label class="form-check-label">
+            Masquer les véhicules en cours de réservation
+        </label>
+    </div>
+</div>
 
-        <!-- Bouton Filtrer -->
-        <div>
-            <button type="submit" style="padding:10px 18px; border:none; background:#111; color:white; border-radius:6px; cursor:pointer;">
-                Filtrer
-            </button>
-        </div>
+<div class="col-12 d-flex justify-content-end gap-3 mt-3">
 
-        <!-- Réinitialiser -->
-        <div>
-            <a href="{% url 'vehicle_list' %}" style="text-decoration:none; color:#666;">
-                Réinitialiser
-            </a>
-        </div>
+    <a href="{% url 'vehicle_list' %}" class="btn btn-outline-secondary">
+        Réinitialiser
+    </a>
 
-    </form>
+    <button type="submit" class="btn btn-dark">
+        Filtrer
+    </button>
+
+</div>
+
+</form>
+
 </div>
 
 
 <!-- COMPTEUR RESULTATS -->
 
-<p style="margin-bottom:20px; font-weight:500;">
-    {{ total_results }} véhicule{{ total_results|pluralize }} trouvé{{ total_results|pluralize }}
+<p style="margin-bottom:25px; font-weight:500;">
+{{ total_results }} véhicule{{ total_results|pluralize }} trouvé{{ total_results|pluralize }}
 </p>
 
 
 <!-- GRID VEHICULES -->
 
-<div style="
-    display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap:25px;
-">
+<div class="vehicle-grid">
 
 {% for vehicle in vehicles %}
-    <div style="
-        border:1px solid #e5e5e5;
-        border-radius:12px;
-        overflow:hidden;
-        box-shadow:0 4px 12px rgba(0,0,0,0.05);
-        transition:transform 0.2s ease;
-        background:white;
-        position:relative;
-    ">
 
-        <!-- BADGES -->
+<div class="vehicle-card">
 
-        {% if vehicle.status == "reserved" %}
-            <div style="
-                position:absolute;
-                top:12px;
-                left:12px;
-                background-color:grey;
-                color:red;
-                padding:6px 10px;
-                border-radius:20px;
-                font-size:12px;
-                font-weight:600;
-            ">
-                En cours de réservation
-            </div>
-        {% endif %}
+{% if vehicle.status == "reserved" %}
+<div class="vehicle-badge">
+En cours de réservation
+</div>
+{% endif %}
 
+<a href="{% url 'vehicle_detail' vehicle.slug %}" style="text-decoration:none;color:inherit;">
 
-        <a href="{% url 'vehicle_detail' vehicle.slug %}" style="text-decoration:none; color:inherit;">
+{% if vehicle.main_image %}
+<img src="{{ vehicle.main_image.url }}" class="vehicle-img">
+{% endif %}
 
-            {% if vehicle.main_image %}
-                <img src="{{ vehicle.main_image.url }}"
-                     style="width:100%; height:220px; object-fit:cover;">
-            {% endif %}
+</a>
 
-            <div style="padding:18px;">
+<div class="vehicle-body">
 
-                <h3 style="margin:0 0 8px 0;">
-                    {{ vehicle.brand }} {{ vehicle.model }}
-                </h3>
+<a href="{% url 'vehicle_detail' vehicle.slug %}" style="text-decoration:none;color:inherit;">
 
-                <p style="margin:0 0 6px 0; color:#555;">
-                    {{ vehicle.year }} • {{ vehicle.mileage }} km
-                </p>
+<h3 class="vehicle-title">
+{{ vehicle.brand }} {{ vehicle.model }}
+</h3>
 
-                <p style="margin:0 0 8px 0; font-size:18px;">
-                    <strong>{{ vehicle.price }} €</strong>
-                </p>
+<div class="vehicle-brand">
+Marque : {{ vehicle.brand }}
+</div>
 
-                <p style="margin:0; font-size:14px; color:#777;">
-                    {{ vehicle.get_vehicle_type_display }}
-                </p>
+<p class="vehicle-info">
+{{ vehicle.year }} • {{ vehicle.mileage }} km
+</p>
 
-            </div>
+<p class="vehicle-price">
+{{ vehicle.price }} €
+</p>
 
-        </a>
-    </div>
+<p class="vehicle-type">
+{{ vehicle.get_vehicle_type_display }}
+</p>
+
+</a>
+
+<a href="{% url 'vehicle_detail' vehicle.slug %}" class="btn btn-secondary vehicle-btn">
+Détails / Réserver
+</a>
+
+</div>
+
+</div>
 
 {% empty %}
-    <p>Aucun véhicule ne correspond aux critères sélectionnés.</p>
+
+<p>Aucun véhicule ne correspond aux critères sélectionnés.</p>
+
 {% endfor %}
 
 </div>
@@ -161,28 +310,38 @@
 
 <nav style="margin-top:50px; text-align:center;">
 
-    {% if page_obj.has_previous %}
-        <a href="?{{ request.GET.urlencode }}&page=1" style="margin:0 5px;">«</a>
-        <a href="?{{ request.GET.urlencode }}&page={{ page_obj.previous_page_number }}" style="margin:0 5px;">Précédent</a>
-    {% endif %}
+{% if page_obj.has_previous %}
+<a href="?{{ request.GET.urlencode }}&page=1" class="btn btn-outline-secondary btn-sm">«</a>
+<a href="?{{ request.GET.urlencode }}&page={{ page_obj.previous_page_number }}" class="btn btn-outline-secondary btn-sm">Précédent</a>
+{% endif %}
 
-    {% for num in page_obj.paginator.page_range %}
-        {% if page_obj.number == num %}
-            <strong style="margin:0 8px;">{{ num }}</strong>
-        {% else %}
-            <a href="?{{ request.GET.urlencode }}&page={{ num }}" style="margin:0 8px;">
-                {{ num }}
-            </a>
-        {% endif %}
-    {% endfor %}
+{% for num in page_obj.paginator.page_range %}
 
-    {% if page_obj.has_next %}
-        <a href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}" style="margin:0 5px;">Suivant</a>
-        <a href="?{{ request.GET.urlencode }}&page={{ page_obj.paginator.num_pages }}" style="margin:0 5px;">»</a>
-    {% endif %}
+{% if page_obj.number == num %}
+<span class="btn btn-dark btn-sm">{{ num }}</span>
+{% else %}
+<a href="?{{ request.GET.urlencode }}&page={{ num }}" class="btn btn-outline-secondary btn-sm">{{ num }}</a>
+{% endif %}
+
+{% endfor %}
+
+{% if page_obj.has_next %}
+<a href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}" class="btn btn-outline-secondary btn-sm">Suivant</a>
+<a href="?{{ request.GET.urlencode }}&page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-secondary btn-sm">»</a>
+{% endif %}
 
 </nav>
 
 {% endif %}
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <p>© 2026 M-Motors • Projet étudiant de gestion automobile</p>
+        <p><a href="{% url 'index' %}">Accueil</a> | <a href="{% url 'vehicle_list' %}">Véhicules</a></p>
+    </div>
+</footer>
 
 {% endblock %}
