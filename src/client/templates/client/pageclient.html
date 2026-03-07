@@ -4,13 +4,44 @@
 
 {% block content %}
 
+<style>
+
+/* amélioration légère des cartes */
+
+.client-dashboard-card{
+    border-radius:12px;
+    border:1px solid rgba(0,0,0,0.05);
+}
+
+.client-dashboard-card:hover{
+    box-shadow:0 6px 20px rgba(0,0,0,0.08);
+}
+
+/* centrer verticalement le contenu */
+
+.flex-center{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+/* compteur demandes */
+
+.request-count{
+    font-size:2.2rem;
+    font-weight:600;
+    margin-bottom:10px;
+}
+
+</style>
+
 <div class="container mt-4">
 
     <!-- HEADER -->
     <div class="mb-4">
         <h1>Bienvenue {{ user.first_name }}</h1>
         <p class="text-secondary">
-            Consultez vos demandes (achat et location) et leur état de validation.
+            Consultez vos demandes et leur état de validation.
         </p>
 
         <form method="post" action="{% url 'logout' %}">
@@ -25,13 +56,11 @@
 
         <!-- ACTIONS RAPIDES -->
         <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-
-                    <h5 class="card-title">Retour</h5>
+            <div class="card shadow-sm client-dashboard-card h-100">
+                <div class="card-body flex-center">
 
                     <a href="{% url 'vehicle_list' %}"
-                       class="btn btn-secondary w-100 mb-2">
+                       class="btn btn-secondary w-100">
                         Voir les véhicules
                     </a>
 
@@ -41,7 +70,7 @@
 
         <!-- PROFIL -->
         <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100">
+            <div class="card shadow-sm client-dashboard-card h-100">
                 <div class="card-body">
 
                     <h5 class="card-title">Mon profil : {{ user.username }}</h5>
@@ -69,21 +98,22 @@
 
         <!-- DEMANDES EN COURS -->
         <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
+            <div class="card shadow-sm client-dashboard-card h-100">
+                <div class="card-body flex-center text-center">
 
-                    <h5 class="card-title">Demandes en cours</h5>
+                    <h5 class="card-title mb-3">Demandes en cours :</h5>
 
-                    <h2 class="text-center">
+                    <div class="request-count">
                         {{ pending_count }} / {{ pending_limit }}
-                    </h2>
+                    </div>
 
                     {% if pending_count >= pending_limit %}
-                        <p class="text-danger text-center">
-                            Limite atteinte.
+                        <p class="text-danger mb-0">
+                            Limite atteinte
                         </p>
                     {% else %}
-                        <p class="text-muted text-center">
+                        <p class="text-muted mb-0">
+                            Vous pouvez encore effectuer des demandes
                         </p>
                     {% endif %}
 
@@ -96,7 +126,7 @@
     <hr>
 
     <!-- MES DEMANDES -->
-    <div class="card shadow-sm mt-3">
+    <div class="card shadow-sm mt-3 client-dashboard-card">
         <div class="card-body">
 
             <h4 class="card-title mb-3">
@@ -174,7 +204,7 @@
                 </p>
 
                 <a href="{% url 'vehicle_list' %}"
-                   class="btn btn-primary">
+                   class="btn btn-secondary">
                     Voir les véhicules
                 </a>
 

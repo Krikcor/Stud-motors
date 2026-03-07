@@ -6,18 +6,60 @@ Réservation enregistrée
 
 {% block content %}
 
-<h1>Réservation enregistrée</h1>
+<style>
+/* Container qui prend toute la hauteur et centre la box */
+.confirmation-wrapper {
+    display: flex;
+    justify-content: center; /* centre horizontalement */
+    align-items: center;     /* centre verticalement */
+    min-height: 80vh;        /* occupe presque toute la hauteur */
+    padding: 20px;
+}
 
-<p>
-Votre demande de réservation est bien prise en compte.
-Nous traitons votre demande dans les plus brefs délais.
-Merci.
-</p>
+/* Box blanche principale */
+.confirmation-container {
+    max-width: 600px;
+    width: 100%;
+    padding: 40px 30px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    text-align: center;
+    color: black;
+}
 
-<br>
+.confirmation-container h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
 
-<a href="{% url 'client_dashboard' %}" class="btn btn-primary">
-    Retourner vers mon dashboard
-</a>
+.confirmation-container p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.confirmation-container .btn {
+    padding: 12px 30px;
+    font-size: 1rem;
+    border-radius: 6px;
+}
+</style>
+
+<div class="confirmation-wrapper">
+    <div class="confirmation-container">
+        <h1>Réservation enregistrée</h1>
+
+        <p>
+            Votre demande de réservation est bien prise en compte.<br>
+            Nous traitons votre demande dans les plus brefs délais.<br>
+            Merci.
+        </p>
+
+        <a href="{% url 'client_dashboard' %}" class="btn btn-secondary">
+            Retourner vers mon dashboard
+        </a>
+    </div>
+</div>
 
 {% endblock %}

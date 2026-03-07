@@ -10,7 +10,91 @@
 
 {% block content %}
 
-<h1>
+<style>
+
+.request-form-container{
+    max-width:800px;
+    margin:40px auto;
+}
+
+.request-card{
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.08);
+    margin-bottom:25px;
+}
+
+/* TEXTE EN NOIR */
+
+.request-card,
+.request-card p,
+.request-card label,
+.request-card h2,
+.vehicle-title{
+    color:black;
+}
+
+.request-card h2{
+    font-size:1.4rem;
+    margin-bottom:20px;
+}
+
+.request-card p{
+    margin-bottom:15px;
+}
+
+.request-form-container input,
+.request-form-container select,
+.request-form-container textarea{
+    width:100%;
+    padding:8px 10px;
+    color:black;
+}
+
+/* champs fichiers */
+
+.file-field{
+    padding:10px;
+    background:#f8f9fa;
+    border-radius:6px;
+}
+
+/* checkbox alignée pour conditions et options */
+
+.checkbox-line{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+}
+
+.checkbox-line input{
+    width:auto;
+}
+
+/* bouton */
+
+.submit-area{
+    text-align:center;
+    margin-top:30px;
+}
+
+.submit-area button{
+    padding:12px 30px;
+    font-size:1.1rem;
+}
+
+.vehicle-title{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+</style>
+
+<div class="request-form-container">
+
+<h1 class="vehicle-title">
     {% if vehicle.vehicle_type == "rental" %}
         Demande de location :
     {% else %}
@@ -24,102 +108,135 @@
 
     {{ form.non_field_errors }}
 
-    <h2>Informations personnelles</h2>
+    <!-- INFORMATIONS PERSONNELLES -->
 
-    <p>
-        {{ form.phone.label_tag }}<br>
-        {{ form.phone }}
-        {{ form.phone.errors }}
-    </p>
+    <div class="request-card">
 
-    <p>
-        {{ form.address.label_tag }}<br>
-        {{ form.address }}
-        {{ form.address.errors }}
-    </p>
+        <h2>Informations personnelles</h2>
 
-    <p>
-        {{ form.city.label_tag }}<br>
-        {{ form.city }}
-        {{ form.city.errors }}
-    </p>
+        <p>
+            {{ form.phone.label_tag }}
+            {{ form.phone }}
+            {{ form.phone.errors }}
+        </p>
 
-    <p>
-        {{ form.postal_code.label_tag }}<br>
-        {{ form.postal_code }}
-        {{ form.postal_code.errors }}
-    </p>
+        <p>
+            {{ form.address.label_tag }}
+            {{ form.address }}
+            {{ form.address.errors }}
+        </p>
 
-    <p>
-        {{ form.country.label_tag }}<br>
-        {{ form.country }}
-        {{ form.country.errors }}
-    </p>
+        <p>
+            {{ form.city.label_tag }}
+            {{ form.city }}
+            {{ form.city.errors }}
+        </p>
 
+        <p>
+            {{ form.postal_code.label_tag }}
+            {{ form.postal_code }}
+            {{ form.postal_code.errors }}
+        </p>
+
+        <p>
+            {{ form.country.label_tag }}
+            {{ form.country }}
+            {{ form.country.errors }}
+        </p>
+
+    </div>
+
+    <!-- DOCUMENTS -->
+
+    <div class="request-card">
 
         <h2>Documents</h2>
 
         <p>Permis de conduire :</p>
-        <p>
+
+        <div class="file-field">
             {{ form.driver_license }}
             {{ form.driver_license.errors }}
-        </p>
+        </div>
 
         {% if vehicle.vehicle_type == "rental" %}
 
-        <p>Pièce d'identité :</p>
-        <p>
+        <p class="mt-3">Pièce d'identité :</p>
+
+        <div class="file-field">
             {{ form.identity_document }}
             {{ form.identity_document.errors }}
-        </p>
+        </div>
 
-        <p>Justificatif de domicile :</p>
-        <p>
+        <p class="mt-3">Justificatif de domicile :</p>
+
+        <div class="file-field">
             {{ form.proof_of_address }}
             {{ form.proof_of_address.errors }}
-        </p>
+        </div>
 
+        {% if form.rental_options %}
+            <h2 class="mt-4">Options de location</h2>
 
-    {% if form.rental_options %}
-        <h2>Options de location</h2>
-        {{ form.rental_options }}
-        {{ form.rental_options.errors }}
-    {% endif %}
-    {% endif %}
+            <div>
+                {% for option in form.rental_options %}
+                    <p class="checkbox-line">
+                        {{ option.tag }}
+                        {{ option.choice_label }}
+                    </p>
+                {% endfor %}
+            </div>
 
-    <h2>Conditions</h2>
+            {{ form.rental_options.errors }}
+        {% endif %}
 
-    <p>
-        <label>
+        {% endif %}
+
+    </div>
+
+    <!-- CONDITIONS -->
+
+    <div class="request-card">
+
+        <h2>Conditions</h2>
+
+        <p class="checkbox-line">
             {{ form.accepted_terms }}
             {% if vehicle.vehicle_type == "rental" %}
                 J'accepte les conditions générales de location.
             {% else %}
                 J'accepte les conditions générales de vente.
             {% endif %}
-        </label>
-        {{ form.accepted_terms.errors }}
-    </p>
+        </p>
 
-    <p>
-        <label>
+        {{ form.accepted_terms.errors }}
+
+        <p class="checkbox-line">
             {{ form.accepted_gdpr }}
             J'accepte le traitement de mes données personnelles (RGPD).
-        </label>
+        </p>
+
         {{ form.accepted_gdpr.errors }}
-    </p>
 
-    <br>
+    </div>
 
-    <button type="submit" class="btn btn-primary">
-        {% if vehicle.vehicle_type == "rental" %}
-            Valider la demande de location
-        {% else %}
-            Valider la demande d'achat
-        {% endif %}
-    </button>
+    <div class="submit-area">
+
+        <button type="submit" class="btn btn-secondary">
+
+            {% if vehicle.vehicle_type == "rental" %}
+                Valider la demande de location
+            {% else %}
+                Valider la demande d'achat
+            {% endif %}
+
+        </button>
+
+    </div>
 
 </form>
+
+</div>
 
 {% if vehicle.vehicle_type == "rental" %}
 <script>
@@ -142,7 +259,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
-
 {% endif %}
 
 {% endblock %}
