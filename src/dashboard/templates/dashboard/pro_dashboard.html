@@ -3,27 +3,132 @@
 {% block title %}Dashboard Pro{% endblock %}
 
 {% block content %}
-<h1>Back-office M-Motors</h1>
-<p>Bonjour {{ user.first_name }}</p>
 
-<ul>
-    <li><a href="{% url 'create_vehicle' %}">Ajouter un véhicule</a></li>
-    <li><a href="{% url 'modify_vehicle' %}">Modifier un véhicule</a></li>
-    <li><a href="{% url 'change_vehicle_type' %}">Changer type (Achat / Location)</a></li>
-    <li><a href="{% url 'delete_vehicle' %}">Supprimer un véhicule</a></li>
-    <li><a href="{% url 'list_vehicle' %}">Voir les véhicules</a></li>
-    <li>
-    <a href="{% url 'pro_reservations' %}">
-        Gestion des dossiers clients
-    </a>
-</li>
-</ul>
+<style>
 
-<hr>
+.dashboard-wrapper{
+    max-width:1100px;
+    margin:60px auto;
+    padding:20px;
+}
 
-<form method="post" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit">Se déconnecter</button>
-</form>
+.dashboard-header{
+    margin-bottom:40px;
+}
+
+.dashboard-header h1{
+    font-size:2rem;
+    margin-bottom:5px;
+}
+
+.dashboard-header p{
+    color:#aaa;
+}
+
+/* grille */
+
+.dashboard-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+    gap:20px;
+}
+
+/* cartes */
+
+.dashboard-card{
+    background:#121212;
+    border-radius:12px;
+    padding:25px;
+    text-decoration:none;
+    color:white;
+    border:1px solid rgba(255,255,255,0.05);
+    transition:all 0.2s ease;
+}
+
+.dashboard-card:hover{
+    transform:translateY(-4px);
+    background:#181818;
+    border-color:rgba(255,255,255,0.15);
+}
+
+.dashboard-card h3{
+    margin-bottom:8px;
+    font-size:1.2rem;
+}
+
+.dashboard-card p{
+    color:#aaa;
+    font-size:0.9rem;
+}
+
+/* logout */
+
+.dashboard-footer{
+    margin-top:50px;
+    text-align:center;
+}
+
+.logout-btn{
+    padding:10px 22px;
+}
+
+</style>
+
+
+<div class="dashboard-wrapper">
+
+    <div class="dashboard-header">
+        <h1>Back-office M-Motors</h1>
+        <p>Bienvenue {{ user.username }}, gérez le catalogue et vos dossiers clients.</p>
+    </div>
+
+
+    <div class="dashboard-grid">
+
+        <a href="{% url 'create_vehicle' %}" class="dashboard-card">
+            <h3>Ajouter un véhicule</h3>
+            <p>Créer une nouvelle annonce de véhicule.</p>
+        </a>
+
+        <a href="{% url 'modify_vehicle' %}" class="dashboard-card">
+            <h3>Modifier un véhicule</h3>
+            <p>Mettre à jour les informations d’un véhicule.</p>
+        </a>
+
+        <a href="{% url 'change_vehicle_type' %}" class="dashboard-card">
+            <h3>Changer le type</h3>
+            <p>Basculer entre Achat et Location.</p>
+        </a>
+
+        <a href="{% url 'delete_vehicle' %}" class="dashboard-card">
+            <h3>Supprimer un véhicule</h3>
+            <p>Retirer un véhicule du catalogue.</p>
+        </a>
+
+        <a href="{% url 'list_vehicle' %}" class="dashboard-card">
+            <h3>Voir les véhicules</h3>
+            <p>Consulter tous les véhicules enregistrés.</p>
+        </a>
+
+        <a href="{% url 'pro_reservations' %}" class="dashboard-card">
+            <h3>Dossiers clients</h3>
+            <p>Gérer les réservations et demandes clients.</p>
+        </a>
+
+    </div>
+
+
+    <div class="dashboard-footer">
+
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger logout-btn">
+                Se déconnecter
+            </button>
+        </form>
+
+    </div>
+
+</div>
 
 {% endblock %}
