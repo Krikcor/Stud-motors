@@ -4,42 +4,145 @@
 
 {% block content %}
 
-<h1>Liste des véhicules</h1>
+<style>
 
-{% if vehicles %}
-<table border="1" cellpadding="8" style="border-collapse: collapse; width:100%; color:black;">
-    <thead>
-        <tr style="background-color:#f2f2f2;">
-            <th>ID</th>
-            <th>Marque</th>
-            <th>Modèle</th>
-            <th>Année</th>
-            <th>Type</th>
-            <th>Kilométrage</th>
-            <th>Prix (€)</th>
-            <th>Créé le</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for vehicle in vehicles %}
-        <tr>
-            <td>{{ vehicle.id }}</td>
-            <td>{{ vehicle.brand }}</td>
-            <td>{{ vehicle.model }}</td>
-            <td>{{ vehicle.year }}</td>
-            <td>{{ vehicle.get_vehicle_type_display }}</td>
-            <td>{{ vehicle.mileage }} km</td>
-            <td>{{ vehicle.price }}</td>
-            <td>{{ vehicle.created_at|date:"d/m/Y" }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>Aucun véhicule enregistré.</p>
-{% endif %}
+.vehicle-list-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+}
 
-<br>
-<a href="{% url 'pro_dashboard' %}">Retour vers le dashboard</a>
+.vehicle-card {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* header titre + bouton */
+
+.vehicle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.vehicle-header h1 {
+    margin: 0;
+    color: black;
+}
+
+/* table moderne */
+
+.vehicle-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.vehicle-table thead {
+    background: #f4f6f9;
+}
+
+.vehicle-table th {
+    text-align: left;
+    padding: 12px;
+    color: black;
+    font-weight: 600;
+    border-bottom: 2px solid #e6e6e6;
+}
+
+.vehicle-table td {
+    padding: 12px;
+    color: black;
+    border-bottom: 1px solid #eee;
+}
+
+/* hover ligne */
+
+.vehicle-table tbody tr:hover {
+    background: #f8f9fb;
+}
+
+/* colonne prix */
+
+.price-cell {
+    font-weight: 600;
+}
+
+/* message vide */
+
+.empty-message {
+    text-align: center;
+    padding: 20px;
+    color: black;
+}
+
+</style>
+
+
+<div class="vehicle-list-container">
+
+    <div class="vehicle-card">
+
+        <div class="vehicle-header">
+
+            <h1>Liste des véhicules</h1>
+
+            <a href="{% url 'pro_dashboard' %}" class="btn btn-secondary">
+                Retour au dashboard
+            </a>
+
+        </div>
+
+        {% if vehicles %}
+
+            <table class="vehicle-table">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Marque</th>
+                        <th>Modèle</th>
+                        <th>Année</th>
+                        <th>Type</th>
+                        <th>Kilométrage</th>
+                        <th>Prix (€)</th>
+                        <th>Créé le</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for vehicle in vehicles %}
+
+                        <tr>
+                            <td>{{ vehicle.id }}</td>
+                            <td>{{ vehicle.brand }}</td>
+                            <td>{{ vehicle.model }}</td>
+                            <td>{{ vehicle.year }}</td>
+                            <td>{{ vehicle.get_vehicle_type_display }}</td>
+                            <td>{{ vehicle.mileage }} km</td>
+                            <td class="price-cell">{{ vehicle.price }}</td>
+                            <td>{{ vehicle.created_at|date:"d/m/Y" }}</td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        {% else %}
+
+            <p class="empty-message">
+                Aucun véhicule enregistré.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</div>
 
 {% endblock %}

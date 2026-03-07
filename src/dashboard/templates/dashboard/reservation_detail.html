@@ -2,87 +2,160 @@
 
 {% block content %}
 
-<h2>Dossier réservation</h2>
+<div style="max-width:900px; margin:auto; padding:20px;">
 
-<h4>Client</h4>
-<p>{{ reservation.user.username }}</p>
-<p>{{ reservation.phone }}</p>
+    <!-- Header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+        <h2 style="margin:0;">Dossier réservation</h2>
 
-<h4>Adresse</h4>
-<p>
-    {{ reservation.address }}<br>
-    {{ reservation.postal_code }} {{ reservation.city }}<br>
-    {{ reservation.country }}
-</p>
+        <a href="{% url 'pro_reservations' %}"
+           style="
+           background:#6c757d;
+           color:white;
+           padding:8px 16px;
+           text-decoration:none;
+           border-radius:6px;
+           font-size:14px;
+           ">
+           ← Liste des réservations
+        </a>
+    </div>
 
-<hr>
+    <!-- Bloc client -->
+    <div style="
+        background:white;
+        color:black;
+        padding:20px;
+        border-radius:8px;
+        box-shadow:0 4px 10px rgba(0,0,0,0.08);
+        margin-bottom:20px;
+    ">
+        <h4 style="margin-top:0;">Client</h4>
+        <p style="margin:5px 0;"><strong>Utilisateur :</strong> {{ reservation.user.username }}</p>
+        <p style="margin:5px 0;"><strong>Téléphone :</strong> {{ reservation.phone }}</p>
+    </div>
 
-{% if reservation.vehicle.vehicle_type == "rental" %}
-    <h4>Documents</h4>
-
-    {% if reservation.driver_license %}
-        <p>
-            Permis de conduire :
-            <a href="{{ reservation.driver_license.url }}">Voir</a>
+    <!-- Bloc adresse -->
+    <div style="
+        background:white;
+        color:black;
+        padding:20px;
+        border-radius:8px;
+        box-shadow:0 4px 10px rgba(0,0,0,0.08);
+        margin-bottom:20px;
+    ">
+        <h4 style="margin-top:0;">Adresse</h4>
+        <p style="margin:5px 0;">
+            {{ reservation.address }}<br>
+            {{ reservation.postal_code }} {{ reservation.city }}<br>
+            {{ reservation.country }}
         </p>
-    {% else %}
-        <p>Permis de conduire : Aucun document fourni.</p>
-    {% endif %}
+    </div>
 
-    {% if reservation.identity_document %}
+    <!-- Bloc documents -->
+    <div style="
+        background:white;
+        color:black;
+        padding:20px;
+        border-radius:8px;
+        box-shadow:0 4px 10px rgba(0,0,0,0.08);
+        margin-bottom:20px;
+    ">
+        <h4 style="margin-top:0;">Documents fournis</h4>
+
         <p>
-            Pièce d'identité :
-            <a href="{{ reservation.identity_document.url }}">Voir</a>
+            <strong>Permis de conduire :</strong>
+            {% if reservation.driver_license %}
+                <a href="{{ reservation.driver_license.url }}" style="margin-left:10px;">Voir le document</a>
+            {% else %}
+                <span style="color:#777;">Aucun document fourni</span>
+            {% endif %}
         </p>
-    {% else %}
-        <p>Pièce d'identité : Aucun document fourni.</p>
-    {% endif %}
 
-    {% if reservation.proof_of_address %}
+    {% if reservation.vehicle.vehicle_type == "rental" %}
         <p>
-            Justificatif de domicile :
-            <a href="{{ reservation.proof_of_address.url }}">Voir</a>
+            <strong>Pièce d'identité :</strong>
+            {% if reservation.identity_document %}
+                <a href="{{ reservation.identity_document.url }}" style="margin-left:10px;">Voir le document</a>
+            {% else %}
+                <span style="color:#777;">Aucun document fourni</span>
+            {% endif %}
         </p>
-    {% else %}
-        <p>Justificatif de domicile : Aucun document fourni.</p>
+
+        <p>
+            <strong>Justificatif de domicile :</strong>
+            {% if reservation.proof_of_address %}
+                <a href="{{ reservation.proof_of_address.url }}" style="margin-left:10px;">Voir le document</a>
+            {% else %}
+                <span style="color:#777;">Aucun document fourni</span>
+            {% endif %}
+        </p>
     {% endif %}
+    </div>
 
-    <hr>
-
-    <h4>Options choisies</h4>
-    {% if reservation.rental_options %}
-        <ul>
-        {% for option in reservation.rental_options %}
-            <li>
-                {% for key, label in reservation.RENTAL_OPTIONS %}
-                    {% if key == option %}
-                        {{ label }}
-                    {% endif %}
+    <!-- Bloc options -->
+    {% if reservation.vehicle.vehicle_type == "rental" %}
+    <div style="
+        background:white;
+        color:black;
+        padding:20px;
+        border-radius:8px;
+        box-shadow:0 4px 10px rgba(0,0,0,0.08);
+        margin-bottom:30px;
+    ">
+        <h4 style="margin-top:0;">Options choisies</h4>
+        {% if reservation.rental_options %}
+            <ul style="padding-left:20px;">
+                {% for option in reservation.rental_options %}
+                    <li>
+                        {% for key, label in reservation.RENTAL_OPTIONS %}
+                            {% if key == option %}
+                                {{ label }}
+                            {% endif %}
+                        {% endfor %}
+                    </li>
                 {% endfor %}
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>Aucune option choisie.</p>
+            </ul>
+        {% else %}
+            <p style="color:#777;">Aucune option choisie.</p>
+        {% endif %}
+    </div>
     {% endif %}
 
-    <hr>
-{% endif %}
+    <!-- Boutons décision centrés et séparés du formulaire -->
+    {% if reservation.status == "pending" %}
+    <div style="
+        display:flex;
+        justify-content:space-between;
+        width:300px;
+        margin:40px auto 0 auto;  /* <-- espace de 40px pour bien les séparer du formulaire */
+    ">
+        <a href="{% url 'reservation_decision' reservation.id 'approve' %}"
+           style="
+           background:#28a745;
+           color:white;
+           padding:10px 18px;
+           text-decoration:none;
+           border-radius:6px;
+           font-weight:600;
+           ">
+           ✔ Accepter
+        </a>
 
-{% if reservation.status == "pending" %}
-    <a href="{% url 'reservation_decision' reservation.id 'approve' %}"
-       class="btn btn-success">
-       Accepter
-    </a>
+        <a href="{% url 'reservation_decision' reservation.id 'refuse' %}"
+           style="
+           background:#dc3545;
+           color:white;
+           padding:10px 18px;
+           text-decoration:none;
+           border-radius:6px;
+           font-weight:600;
+           ">
+           ✖ Refuser
+        </a>
+    </div>
+    {% endif %}
 
-    <a href="{% url 'reservation_decision' reservation.id 'refuse' %}"
-       class="btn btn-danger">
-       Refuser
-    </a>
-{% endif %}
-
-<a href="{% url 'pro_reservations' %}" class="btn btn-secondary">
-    Retour vers la liste des réservations
-</a>
+</div>
 
 {% endblock %}

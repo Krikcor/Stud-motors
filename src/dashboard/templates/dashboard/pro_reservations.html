@@ -1,51 +1,134 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Dossiers clients</h2>
-<a href="{% url 'pro_dashboard' %}">Retour vers le dashboard</a>
-<table class="table">
-<tr>
-    <th>Client</th>
-    <th>Véhicule</th>
-    <th>Date</th>
-    <th>Statut</th>
-    <th>Validé par</th>
-    <th></th>
-</tr>
 
-{% for r in reservations %}
-<tr>
-    <td>{{ r.user.username }}</td>
-    <td>{{ r.vehicle }}</td>
-    <td>{{ r.created_at|date:"d/m/Y" }}</td>
+<div style="max-width:1000px; margin:auto; padding:20px;">
 
-    <td>
-        {% if r.status == "pending" %}
-            En attente
-        {% elif r.status == "approved" %}
-            Acceptée
-        {% else %}
-            Refusée
-        {% endif %}
-    </td>
+    <!-- Header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="margin:0;">Dossiers clients</h2>
 
-    <td>
-    {% if r.validated_by %}
-        {{ r.validated_by.username }}
-        <br>
-        <small>{{ r.validated_at|date:"d/m/Y H:i" }}</small>
-    {% else %}
-        -
-    {% endif %}
-    </td>
-
-    <td>
-        <a href="{% url 'reservation_detail' r.id %}">
-            Consulter
+        <a href="{% url 'pro_dashboard' %}"
+           style="
+           background:#6c757d;
+           color:white;
+           padding:8px 16px;
+           text-decoration:none;
+           border-radius:6px;
+           font-size:14px;
+           ">
+            ← Dashboard
         </a>
-    </td>
-</tr>
-{% endfor %}
-</table>
+    </div>
+
+
+    <!-- Tableau -->
+    <table class="table"
+           style="
+           width:100%;
+           border-collapse:collapse;
+           background:white;
+           box-shadow:0 4px 12px rgba(0,0,0,0.08);
+           border-radius:8px;
+           overflow:hidden;
+           ">
+
+        <thead style="background:#f5f5f5;">
+            <tr>
+                <th style="padding:12px; text-align:left;">Client</th>
+                <th style="padding:12px; text-align:left;">Véhicule</th>
+                <th style="padding:12px; text-align:left;">Date</th>
+                <th style="padding:12px; text-align:left;">Statut</th>
+                <th style="padding:12px; text-align:left;">Validé par</th>
+                <th style="padding:12px;"></th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for r in reservations %}
+            <tr style="border-top:1px solid #eee;">
+
+                <td style="padding:12px;">
+                    {{ r.user.username }}
+                </td>
+
+                <td style="padding:12px;">
+                    {{ r.vehicle }}
+                </td>
+
+                <td style="padding:12px;">
+                    {{ r.created_at|date:"d/m/Y" }}
+                </td>
+
+
+                <!-- Statut -->
+                <td style="padding:12px;">
+
+                    {% if r.status == "pending" %}
+                        <span style="color:#e67e22; font-weight:600;">
+                            En attente
+                        </span>
+
+                    {% elif r.status == "approved" %}
+                        <span style="color:#2ecc71; font-weight:600;">
+                            Acceptée
+                        </span>
+
+                    {% else %}
+                        <span style="color:#e74c3c; font-weight:600;">
+                            Refusée
+                        </span>
+                    {% endif %}
+
+                </td>
+
+
+                <!-- Validateur -->
+                <td style="padding:12px;">
+
+                    {% if r.validated_by %}
+
+                        {{ r.validated_by.username }}
+                        <br>
+                        <small style="color:#777;">
+                            {{ r.validated_at|date:"d/m/Y H:i" }}
+                        </small>
+
+                    {% else %}
+
+                        <span style="color:#aaa;">-</span>
+
+                    {% endif %}
+
+                </td>
+
+
+                <!-- Bouton consulter -->
+                <td style="padding:12px; text-align:right;">
+
+                    <a href="{% url 'reservation_detail' r.id %}"
+                       style="
+                       background:#007bff;
+                       color:white;
+                       padding:6px 12px;
+                       border-radius:5px;
+                       text-decoration:none;
+                       font-size:14px;
+                       ">
+                        Consulter
+                    </a>
+
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
 
 {% endblock %}

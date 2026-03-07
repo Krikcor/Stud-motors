@@ -3,16 +3,169 @@
 {% block title %}Ajouter un véhicule{% endblock %}
 
 {% block content %}
-<h1>Ajouter un véhicule</h1>
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
+<style>
+.vehicle-form-container {
+    max-width: 800px;
+    margin: 40px auto;
+}
 
-    {{ form.as_p }}
+.vehicle-card {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
 
-    <input type="file" name="secondary_images" multiple>
+.vehicle-card h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: black;
+}
 
-    <button type="submit">Enregistrer</button>
-</form>
-<a href="{% url 'pro_dashboard' %}">Retour vers le dashboard</a>
+.vehicle-card p,
+.vehicle-card label,
+.vehicle-card input,
+.vehicle-card select,
+.vehicle-card textarea {
+    color: black;
+}
+
+.vehicle-card input,
+.vehicle-card select,
+.vehicle-card textarea {
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 15px;
+}
+
+.vehicle-card .file-field {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+/* Radio inline*/
+.radio-line {
+    display: flex;
+    flex-direction: column; /* chaque option sur une ligne */
+    margin-bottom: 15px;
+    align-items: baseline;
+}
+
+.radio-line .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* espace entre le rond et le texte */
+    margin-bottom: 6px;
+    color: black;
+    cursor: pointer;
+}
+
+.radio-line .radio-option input[type="radio"] {
+    margin: 0; /* supprime marges par défaut */
+}
+
+/* bouton */
+.submit-area {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.submit-area button {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+}
+
+</style>
+
+<div class="vehicle-form-container">
+
+    <div class="vehicle-card">
+        <h1>Ajouter un véhicule</h1>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Champs du formulaire -->
+            <p>
+                {{ form.brand.label_tag }}
+                {{ form.brand }}
+                {{ form.brand.errors }}
+            </p>
+
+            <p>
+                {{ form.model.label_tag }}
+                {{ form.model }}
+                {{ form.model.errors }}
+            </p>
+
+            <p>
+                {{ form.engine.label_tag }}
+                {{ form.engine }}
+                {{ form.engine.errors }}
+            </p>
+
+            <p>
+                {{ form.year.label_tag }}
+                {{ form.year }}
+                {{ form.year.errors }}
+            </p>
+
+            <p>
+                {{ form.color.label_tag }}
+                {{ form.color }}
+                {{ form.color.errors }}
+            </p>
+
+            <p>
+                {{ form.mileage.label_tag }}
+                {{ form.mileage }}
+                {{ form.mileage.errors }}
+            </p>
+
+            <!-- Radio vehicle_type : options verticales, rond + texte sur la même ligne -->
+            <div class="radio-line">
+                {% for radio in form.vehicle_type %}
+                    <label class="radio-option">
+                        {{ radio.tag }}
+                        {{ radio.choice_label }}
+                    </label>
+                {% endfor %}
+                {{ form.vehicle_type.errors }}
+            </div>
+
+            <p>
+                {{ form.price.label_tag }}
+                {{ form.price }}
+                {{ form.price.errors }}
+            </p>
+
+            <p>
+                {{ form.main_image.label_tag }}
+                {{ form.main_image }}
+                {{ form.main_image.errors }}
+            </p>
+
+            <p>
+                <label>Images secondaires :</label>
+                <input type="file" name="secondary_images" multiple>
+            </p>
+
+            <div class="submit-area">
+                <button type="submit" class="btn btn-dark">Enregistrer</button>
+            </div>
+
+        </form>
+
+        <div class="mt-3">
+            <a href="{% url 'pro_dashboard' %}" class="btn btn-secondary w-100">
+                Retour vers le dashboard
+            </a>
+        </div>
+
+    </div>
+</div>
+
 {% endblock %}

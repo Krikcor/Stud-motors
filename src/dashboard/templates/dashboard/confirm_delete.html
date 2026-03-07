@@ -1,15 +1,84 @@
-<h2>Confirmer la suppression</h2>
+{% extends "base.html" %}
 
-<p>
-    Voulez-vous vraiment supprimer
-    {{ vehicle.brand }} {{ vehicle.model }}
-    (ID: {{ vehicle.id }}) ?
-</p>
+{% block title %}Confirmer la suppression{% endblock %}
 
-<form method="post">
-    {% csrf_token %}
-    <input type="hidden" name="confirm_delete" value="{{ vehicle.id }}">
-    <button type="submit">Oui, supprimer</button>
-</form>
+{% block content %}
 
-<a href="{% url 'pro_dashboard' %}">Annuler</a>
+<style>
+.confirm-delete-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(90vh - 80px);
+}
+
+.confirm-card {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    text-align: center;
+    width: 100%;
+}
+
+.confirm-card h2 {
+    margin-bottom: 20px;
+    color: black;
+}
+
+.confirm-card p {
+    color: black;
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+}
+
+.confirm-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.confirm-buttons button,
+.confirm-buttons a {
+    padding: 12px 25px;
+    font-size: 1rem;
+    text-decoration: none;
+}
+</style>
+
+<div class="confirm-delete-container">
+
+    <div class="confirm-card">
+        <h2>Confirmer la suppression</h2>
+
+        <p>
+            Voulez-vous vraiment supprimer
+            <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong>
+            (ID : {{ vehicle.id }}) ?
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="confirm_delete" value="{{ vehicle.id }}">
+
+            <div class="confirm-buttons">
+                <button type="submit" class="btn btn-danger">
+                    Oui, supprimer
+                </button>
+
+                <a href="{% url 'pro_dashboard' %}" class="btn btn-secondary">
+                    Annuler
+                </a>
+            </div>
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

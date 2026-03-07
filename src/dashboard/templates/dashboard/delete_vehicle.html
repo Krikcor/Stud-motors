@@ -1,16 +1,86 @@
-<h2>Supprimer un véhicule</h2>
+{% extends "base.html" %}
 
-{% if error %}
-    <p style="color:red;">{{ error }}</p>
-{% endif %}
+{% block title %}Supprimer un véhicule{% endblock %}
 
-<form method="post">
-    {% csrf_token %}
+{% block content %}
 
-    <label for="vehicle_id">ID du véhicule :</label>
-    <input type="number" id="vehicle_id" name="vehicle_id" required>
+<style>
+.delete-vehicle-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+        display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(90vh - 80px);
+}
 
-    <button type="submit">Supprimer</button>
-</form>
+.delete-card {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
 
-<a href="{% url 'pro_dashboard' %}">Retour au dashboard</a>
+.delete-card h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: black;
+}
+
+.delete-card label,
+.delete-card input,
+.delete-card p {
+    color: black;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.delete-card input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.delete-card button {
+    width: 100%;
+    padding: 12px 25px;
+    font-size: 1.05rem;
+    margin-top: 10px;
+}
+
+.return-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+}
+</style>
+
+<div class="delete-vehicle-container">
+
+    <div class="delete-card">
+        <h2>Supprimer un véhicule</h2>
+
+        {% if error %}
+            <p style="color:red; text-align:center;">{{ error }}</p>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label for="vehicle_id">ID du véhicule :</label>
+            <input type="number" id="vehicle_id" name="vehicle_id" required>
+
+            <button type="submit" class="btn btn-danger">Supprimer</button>
+        </form>
+
+        <a href="{% url 'pro_dashboard' %}" class="btn btn-secondary return-link">
+            Retour au dashboard
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}
