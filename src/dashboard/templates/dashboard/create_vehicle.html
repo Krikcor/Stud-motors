@@ -7,7 +7,7 @@
 <style>
 .vehicle-form-container {
     max-width: 800px;
-    margin: 40px auto;
+    margin: 20px auto;
 }
 
 .vehicle-card {
@@ -17,9 +17,9 @@
     box-shadow: 0 4px 15px rgba(0,0,0,0.08);
 }
 
-.vehicle-card h1 {
+.vehicle-card h2 {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     color: black;
 }
 
@@ -49,7 +49,7 @@
 /* Radio inline*/
 .radio-line {
     display: flex;
-    flex-direction: column; /* chaque option sur une ligne */
+    flex-direction: column;
     margin-bottom: 15px;
     align-items: baseline;
 }
@@ -70,7 +70,7 @@
 /* bouton */
 .submit-area {
     text-align: center;
-    margin-top: 30px;
+    margin-top: 10px;
 }
 
 .submit-area button {
@@ -83,7 +83,7 @@
 <div class="vehicle-form-container">
 
     <div class="vehicle-card">
-        <h1>Ajouter un véhicule</h1>
+        <h2>Ajouter un véhicule</h2>
 
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -125,8 +125,8 @@
                 {{ form.mileage.errors }}
             </p>
 
-            <!-- Radio vehicle_type : options verticales, rond + texte sur la même ligne -->
             <div class="radio-line">
+                <p>Types :</p>
                 {% for radio in form.vehicle_type %}
                     <label class="radio-option">
                         {{ radio.tag }}
@@ -159,11 +159,6 @@
 
         </form>
 
-        <div class="mt-3">
-            <a href="{% url 'pro_dashboard' %}" class="btn btn-secondary w-100">
-                Retour vers le dashboard
-            </a>
-        </div>
 
     </div>
 </div>

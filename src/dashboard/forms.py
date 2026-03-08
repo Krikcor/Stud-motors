@@ -21,5 +21,11 @@ class VehicleForm(forms.ModelForm):
         ]
 
         widgets = {
-            'vehicle_type': forms.RadioSelect,
+            'vehicle_type': forms.RadioSelect(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # on force les choix du modèle
+        self.fields["vehicle_type"].choices = Vehicle.VEHICLE_TYPE_CHOICES

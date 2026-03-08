@@ -8,9 +8,15 @@
 
 .dashboard-wrapper{
     max-width:1100px;
-    margin:60px auto;
+    margin:0 auto;
     padding:20px;
+    min-height:90vh;
+
+    display:flex;
+    flex-direction:column;
 }
+
+/* header reste en haut */
 
 .dashboard-header{
     margin-bottom:40px;
@@ -25,13 +31,18 @@
     color:#aaa;
 }
 
-/* grille */
+
+/* grid centrée verticalement */
 
 .dashboard-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
     gap:20px;
+
+    flex:1;
+    align-content:center;
 }
+
 
 /* cartes */
 
@@ -61,12 +72,16 @@
     font-size:0.9rem;
 }
 
-/* logout */
+
+/* footer reste en bas */
 
 .dashboard-footer{
-    margin-top:50px;
+    margin-top:40px;
     text-align:center;
 }
+
+
+/* logout */
 
 .logout-btn{
     padding:10px 22px;
