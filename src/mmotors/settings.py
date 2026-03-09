@@ -123,9 +123,17 @@ STATICFILES_DIRS = [
 
 # Email backend
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-DEFAULT_FROM_EMAIL = "no-reply@mmotors.com"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp-relay.brevo.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 
+EMAIL_HOST_USER = os.getenv("BREVO_USER")
+EMAIL_HOST_PASSWORD = os.getenv("BREVO_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("BREVO_MAIL")
+
+#MAIL ERREURS DJANGO ADMIN
+SERVER_EMAIL = os.getenv("BREVO_MAIL")
 
 # Authentication redirects
 
