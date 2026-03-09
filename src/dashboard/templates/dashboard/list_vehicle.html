@@ -78,6 +78,54 @@
     color: black;
 }
 
+/* responsive */
+
+@media (max-width: 800px) {
+
+    .col-year {
+        display: none;
+    }
+
+}
+
+@media (max-width: 730px) {
+
+    .col-year, .col-mileage {
+        display: none;
+    }
+
+}
+
+@media (max-width: 630px) {
+
+    .col-year, .col-mileage, .col-created {
+        display: none;
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .col-year,
+    .col-mileage,
+    .col-price,
+    .col-created {
+        display: none;
+    }
+
+@media (max-width: 415px) {
+
+    .col-year,
+    .col-mileage,
+    .col-price,
+    .col-created,
+     .col-model{
+        display: none;
+    }
+
+}
+
 </style>
 
 
@@ -103,32 +151,30 @@
                     <tr>
                         <th>ID</th>
                         <th>Marque</th>
-                        <th>Modèle</th>
-                        <th>Année</th>
+                        <th class="col-model">Modèle</th>
+                        <th class="col-year">Année</th>
                         <th>Type</th>
-                        <th>Kilométrage</th>
-                        <th>Prix (€)</th>
-                        <th>Créé le</th>
+                        <th class="col-mileage">Kilométrage</th>
+                        <th class="col-price">Prix (€)</th>
+                        <th class="col-created">Créé le</th>
                     </tr>
                 </thead>
 
                 <tbody>
-
                     {% for vehicle in vehicles %}
 
                         <tr>
                             <td>{{ vehicle.id }}</td>
                             <td>{{ vehicle.brand }}</td>
-                            <td>{{ vehicle.model }}</td>
-                            <td>{{ vehicle.year }}</td>
+                            <td class="col-model">{{ vehicle.model }}</td>
+                            <td class="col-year">{{ vehicle.year }}</td>
                             <td>{{ vehicle.get_vehicle_type_display }}</td>
-                            <td>{{ vehicle.mileage }} km</td>
-                            <td class="price-cell">{{ vehicle.price }}</td>
-                            <td>{{ vehicle.created_at|date:"d/m/Y" }}</td>
+                            <td class="col-mileage">{{ vehicle.mileage }} km</td>
+                            <td class="price-cell col-price">{{ vehicle.price }}</td>
+                            <td class="col-created">{{ vehicle.created_at|date:"d/m/Y" }}</td>
                         </tr>
 
                     {% endfor %}
-
                 </tbody>
 
             </table>

@@ -2,6 +2,31 @@
 
 {% block content %}
 
+<style>
+    @media (max-width: 654px) {
+
+    .col-date {
+        display: none;
+    }
+
+}
+
+    @media (max-width: 520px) {
+
+    .col-date, .vby {
+        display: none;
+    }
+
+}
+    @media (max-width: 410px) {
+
+    .col-date, .vby, .col-veh {
+        display: none;
+    }
+
+}
+</style>
+
 <div style="max-width:1000px; margin:auto; padding:20px;">
 
     <!-- Header -->
@@ -36,10 +61,10 @@
         <thead style="background:#f5f5f5;">
             <tr>
                 <th style="padding:12px; text-align:left;">Client</th>
-                <th style="padding:12px; text-align:left;">Véhicule</th>
-                <th style="padding:12px; text-align:left;">Date</th>
+                <th class="col-veh" style="padding:12px; text-align:left;">Véhicule</th>
+                <th class="col-date" style="padding:12px; text-align:left;">Date</th>
                 <th style="padding:12px; text-align:left;">Statut</th>
-                <th style="padding:12px; text-align:left;">Validé par</th>
+                <th class="vby" style="padding:12px; text-align:left;">Validé par</th>
                 <th style="padding:12px;"></th>
             </tr>
         </thead>
@@ -53,11 +78,11 @@
                     {{ r.user.username }}
                 </td>
 
-                <td style="padding:12px;">
+                <td class="col-veh" style="padding:12px;">
                     {{ r.vehicle }}
                 </td>
 
-                <td style="padding:12px;">
+                <td class="col-date" style="padding:12px;">
                     {{ r.created_at|date:"d/m/Y" }}
                 </td>
 
@@ -85,7 +110,7 @@
 
 
                 <!-- Validateur -->
-                <td style="padding:12px;">
+                <td class="vby" style="padding:12px;">
 
                     {% if r.validated_by %}
 
