@@ -135,6 +135,10 @@ DEFAULT_FROM_EMAIL = os.getenv("BREVO_MAIL")
 #MAIL ERREURS DJANGO ADMIN
 SERVER_EMAIL = os.getenv("BREVO_MAIL")
 
+ADMINS = [
+    ("Admin", os.getenv("ADMINMAIL"), ""),
+]
+
 # Authentication redirects
 
 LOGIN_URL = "login"
