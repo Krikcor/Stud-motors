@@ -9,6 +9,9 @@ from django.shortcuts import render
 from django.utils import timezone
 from client.models import Reservation
 from vehicles.models import Vehicle
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -16,7 +19,10 @@ def pro_dashboard(request):
     """
     Dashboard réservé aux utilisateurs avec le rôle 'pro'.
     """
+    logger.info(f"Accès au dashboard pro par {request.user.username}")
+
     if request.user.profile.role != "pro":
+        logger.warning(f"Tentative d'accès non autorisé au dashboard pro par {request.user.username}")
         raise PermissionDenied
 
     return render(request, "dashboard/pro_dashboard.html")
@@ -27,7 +33,10 @@ def create_vehicle(request):
     """
     Permet à un utilisateur 'pro' d'ajouter un véhicule en base.
     """
+    logger.info(f"{request.user.username} accède à la création de véhicule")
+
     if request.user.profile.role != "pro":
+        logger.warning(f"Tentative création véhicule non autorisée par {request.user.username}")
         raise PermissionDenied
 
     if request.method == "POST":
@@ -36,6 +45,7 @@ def create_vehicle(request):
 
         if form.is_valid():
             vehicle = form.save()
+            logger.info(f"Véhicule créé ID={vehicle.id} par {request.user.username}")
 
             # 🔹 Gestion des images secondaires
             secondary_images = request.FILES.getlist("secondary_images")
@@ -47,6 +57,9 @@ def create_vehicle(request):
 
             messages.success(request, "Véhicule ajouté avec succès.")
             return redirect("pro_dashboard")
+        else:
+            logger.warning(f"Formulaire véhicule invalide soumis par {request.user.username}")
+
     else:
         form = VehicleForm()
 
@@ -57,13 +70,14 @@ def create_vehicle(request):
     )
 
 
-
-
 @login_required
 def delete_vehicle(request):
 
+    logger.info(f"{request.user.username} accède à la suppression de véhicule")
+
     # Vérifie seulement que c'est un pro
     if request.user.profile.role != "pro":
+        logger.warning(f"Tentative suppression véhicule non autorisée par {request.user.username}")
         return HttpResponseForbidden()
 
     # Étape 1 : saisie ID
@@ -73,11 +87,14 @@ def delete_vehicle(request):
         try:
             vehicle = Vehicle.objects.get(id=vehicle_id)
 
+            logger.info(f"Demande de suppression du véhicule ID={vehicle_id} par {request.user.username}")
+
             return render(request, "dashboard/confirm_delete.html", {
                 "vehicle": vehicle
             })
 
         except Vehicle.DoesNotExist:
+            logger.warning(f"Suppression demandée pour véhicule inexistant ID={vehicle_id}")
             return render(request, "dashboard/delete_vehicle.html", {
                 "error": "Véhicule introuvable."
             })
@@ -87,18 +104,21 @@ def delete_vehicle(request):
         vehicle_id = request.POST.get("confirm_delete")
         vehicle = get_object_or_404(Vehicle, id=vehicle_id)
 
+        logger.warning(f"Suppression définitive du véhicule ID={vehicle_id} par {request.user.username}")
+
         vehicle.delete()
         return redirect("pro_dashboard")
 
     return render(request, "dashboard/delete_vehicle.html")
 
 
-
-
 @login_required
 def modify_vehicle(request):
 
+    logger.info(f"{request.user.username} accède à la modification de véhicule")
+
     if request.user.profile.role != "pro":
+        logger.warning(f"Tentative modification véhicule non autorisée par {request.user.username}")
         return HttpResponseForbidden()
 
     # Recherche par ID
@@ -107,10 +127,14 @@ def modify_vehicle(request):
 
         try:
             vehicle = Vehicle.objects.get(id=vehicle_id)
+
+            logger.info(f"Modification demandée pour véhicule ID={vehicle_id} par {request.user.username}")
+
             return render(request, "dashboard/modif_vehicle.html", {
                 "vehicle": vehicle
             })
         except Vehicle.DoesNotExist:
+            logger.warning(f"Modification demandée pour véhicule inexistant ID={vehicle_id}")
             return render(request, "dashboard/modif_vehicle.html", {
                 "error": "Véhicule introuvable."
             })
@@ -131,6 +155,8 @@ def modify_vehicle(request):
 
         vehicle.save()
 
+        logger.info(f"Véhicule ID={vehicle_id} modifié par {request.user.username}")
+
         return redirect("pro_dashboard")
 
     return render(request, "dashboard/modif_vehicle.html")
@@ -139,7 +165,10 @@ def modify_vehicle(request):
 @login_required
 def list_vehicle(request):
 
+    logger.info(f"{request.user.username} consulte la liste des véhicules")
+
     if request.user.profile.role != "pro":
+        logger.warning(f"Tentative accès liste véhicules non autorisée par {request.user.username}")
         return HttpResponseForbidden()
 
     vehicles = Vehicle.objects.all().order_by("-created_at")
@@ -148,10 +177,14 @@ def list_vehicle(request):
         "vehicles": vehicles
     })
 
+
 @login_required
 def pro_reservations(request):
 
+    logger.info(f"{request.user.username} consulte les réservations")
+
     if request.user.profile.role != "pro":
+        logger.warning(f"Tentative accès réservations non autorisée par {request.user.username}")
         return HttpResponseForbidden()
 
     reservations = Reservation.objects.select_related(
@@ -166,10 +199,14 @@ def pro_reservations(request):
         {"reservations": reservations}
     )
 
+
 @login_required
 def reservation_detail(request, pk):
 
+    logger.info(f"{request.user.username} consulte le détail réservation ID={pk}")
+
     if request.user.profile.role != "pro":
+        logger.warning(f"Tentative accès détail réservation non autorisée par {request.user.username}")
         return HttpResponseForbidden()
 
     reservation = get_object_or_404(Reservation, pk=pk)
@@ -180,24 +217,31 @@ def reservation_detail(request, pk):
         {"reservation": reservation}
     )
 
+
 @login_required
 def reservation_decision(request, pk, decision):
 
+    logger.info(f"{request.user.username} prend décision {decision} sur réservation ID={pk}")
+
     if request.user.profile.role != "pro":
+        logger.warning(f"Tentative décision réservation non autorisée par {request.user.username}")
         return HttpResponseForbidden()
 
     reservation = get_object_or_404(Reservation, pk=pk)
 
     if reservation.status != Reservation.STATUS_PENDING:
+        logger.warning(f"Tentative décision sur réservation non pending ID={pk}")
         return redirect("pro_reservations")
 
     if decision == "approve":
         reservation.status = Reservation.STATUS_APPROVED
         reservation.vehicle.status = Vehicle.SOLD
+        logger.info(f"Réservation ID={pk} approuvée par {request.user.username}")
 
     elif decision == "refuse":
         reservation.status = Reservation.STATUS_REFUSED
         reservation.vehicle.status = Vehicle.AVAILABLE
+        logger.info(f"Réservation ID={pk} refusée par {request.user.username}")
 
     reservation.validated_by = request.user
     reservation.validated_at = timezone.now()
@@ -208,11 +252,13 @@ def reservation_decision(request, pk, decision):
     return redirect("pro_reservations")
 
 
-
 @login_required
 def change_vehicle_type(request):
 
+    logger.info(f"{request.user.username} accède au changement de type véhicule")
+
     if request.user.profile.role != "pro":
+        logger.warning(f"Tentative modification type véhicule non autorisée par {request.user.username}")
         return HttpResponseForbidden()
 
     # Étape 1 : recherche par ID
@@ -222,6 +268,8 @@ def change_vehicle_type(request):
         try:
             vehicle = Vehicle.objects.get(id=vehicle_id)
 
+            logger.info(f"Changement de type demandé pour véhicule ID={vehicle_id}")
+
             return render(
                 request,
                 "dashboard/change_vehicle_type.html",
@@ -229,6 +277,7 @@ def change_vehicle_type(request):
             )
 
         except Vehicle.DoesNotExist:
+            logger.warning(f"Changement type demandé pour véhicule inexistant ID={vehicle_id}")
             return render(
                 request,
                 "dashboard/change_vehicle_type.html",
@@ -242,6 +291,7 @@ def change_vehicle_type(request):
 
         # Vérification statut
         if vehicle.status != Vehicle.AVAILABLE:
+            logger.warning(f"Tentative modification type véhicule non disponible ID={vehicle_id}")
             return render(
                 request,
                 "dashboard/change_vehicle_type.html",
@@ -256,6 +306,8 @@ def change_vehicle_type(request):
         if new_type in [Vehicle.PURCHASE, Vehicle.RENTAL]:
             vehicle.vehicle_type = new_type
             vehicle.save()
+
+            logger.info(f"Type du véhicule ID={vehicle_id} modifié en {new_type} par {request.user.username}")
 
             messages.success(request, "Type du véhicule modifié avec succès.")
             return redirect("pro_dashboard")
