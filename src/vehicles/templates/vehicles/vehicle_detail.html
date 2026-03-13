@@ -26,6 +26,7 @@
     width: 100%;
     border-radius: 10px;
     object-fit: cover;
+    cursor:pointer
 }
 
 /* Bloc infos à droite */
@@ -122,108 +123,110 @@
 
 <div class="container vehicle-detail">
 
-    <div class="vehicle-main-card">
+```
+<div class="vehicle-main-card">
 
-        <div class="row">
+    <div class="row">
 
-            <!-- IMAGE PRINCIPALE -->
-            <div class="col-md-7">
+        <!-- IMAGE PRINCIPALE -->
+        <div class="col-md-7">
 
-                {% if vehicle.main_image %}
+            {% if vehicle.main_image %}
 
-                    <img
-                        src="{{ vehicle.main_image.url }}"
-                        alt="{{ vehicle.brand }} {{ vehicle.model }}"
-                        class="vehicle-main-img"
-                    >
+                <img
+                    src="{{ vehicle.main_image.url }}"
+                    alt="{{ vehicle.brand }} {{ vehicle.model }}"
+                    class="vehicle-main-img"
+                    data-bs-toggle="modal"
+                    data-bs-target="#galleryModal"
+                    data-bs-slide-to="0"
+                >
 
-                {% else %}
+            {% else %}
 
-                    <p>Aucune image principale disponible.</p>
+                <p>Aucune image principale disponible.</p>
 
-                {% endif %}
+            {% endif %}
 
-            </div>
+        </div>
 
 
-            <!-- INFOS -->
-            <div class="col-md-5 d-flex">
+        <!-- INFOS -->
+        <div class="col-md-5 d-flex">
 
-                <div class="vehicle-info-box">
+            <div class="vehicle-info-box">
 
-                    <h1 class="vehicle-title">
-                        {{ vehicle.brand }} {{ vehicle.model }}
-                    </h1>
+                <h1 class="vehicle-title">
+                    {{ vehicle.brand }} {{ vehicle.model }}
+                </h1>
 
-                    <div class="vehicle-price">
-                        {{ vehicle.price }} €
+                <div class="vehicle-price">
+                    {{ vehicle.price }} €
+                </div>
+
+                <div class="vehicle-specs">
+
+                    <div class="spec">
+                        <span class="spec-label">Année</span>
+                        <span class="spec-value">{{ vehicle.year }}</span>
                     </div>
 
-                    <div class="vehicle-specs">
-
-                        <div class="spec">
-                            <span class="spec-label">Année</span>
-                            <span class="spec-value">{{ vehicle.year }}</span>
-                        </div>
-
-                        <div class="spec">
-                            <span class="spec-label">Moteur</span>
-                            <span class="spec-value">{{ vehicle.engine }}</span>
-                        </div>
-
-                        <div class="spec">
-                            <span class="spec-label">Kilométrage</span>
-                            <span class="spec-value">{{ vehicle.mileage }} km</span>
-                        </div>
-
-                        <div class="spec">
-                            <span class="spec-label">Type</span>
-                            <span class="spec-value">{{ vehicle.get_vehicle_type_display }}</span>
-                        </div>
-
+                    <div class="spec">
+                        <span class="spec-label">Moteur</span>
+                        <span class="spec-value">{{ vehicle.engine }}</span>
                     </div>
 
+                    <div class="spec">
+                        <span class="spec-label">Kilométrage</span>
+                        <span class="spec-value">{{ vehicle.mileage }} km</span>
+                    </div>
 
-                    <!-- BOUTON / STATUT -->
-                    <div class="reserve-btn">
+                    <div class="spec">
+                        <span class="spec-label">Type</span>
+                        <span class="spec-value">{{ vehicle.get_vehicle_type_display }}</span>
+                    </div>
 
-                        {% if is_available %}
+                </div>
 
-                            {% if user.is_authenticated %}
 
-                                <a
-                                    href="{% url 'reservation_form' vehicle.slug %}"
-                                    class="btn btn-dark btn-lg"
-                                >
-                                    Réserver
-                                </a>
+                <!-- BOUTON / STATUT -->
+                <div class="reserve-btn">
 
-                            {% else %}
+                    {% if is_available %}
 
-                                <a
-                                    href="{% url 'login' %}?next={% url 'reservation_form' vehicle.slug %}"
-                                    class="btn btn-dark btn-lg"
-                                >
-                                    Réservez (connexion requise)
-                                </a>
+                        {% if user.is_authenticated %}
 
-                            {% endif %}
-
-                        {% elif is_reserved %}
-
-                            <span class="status-badge status-reserved">
-                                Véhicule en cours de réservation
-                            </span>
+                            <a
+                                href="{% url 'reservation_form' vehicle.slug %}"
+                                class="btn btn-dark btn-lg"
+                            >
+                                Réserver
+                            </a>
 
                         {% else %}
 
-                            <span class="status-badge status-sold">
-                                Vendu
-                            </span>
+                            <a
+                                href="{% url 'login' %}?next={% url 'reservation_form' vehicle.slug %}"
+                                class="btn btn-dark btn-lg"
+                            >
+                                Réservez (connexion requise)
+                            </a>
 
                         {% endif %}
 
-                    </div>
+                    {% elif is_reserved %}
+
+                        <span class="status-badge status-reserved">
+                            Véhicule en cours de réservation
+                        </span>
+
+                    {% else %}
+
+                        <span class="status-badge status-sold">
+                            Vendu
+                        </span>
+
+                    {% endif %}
 
                 </div>
 
@@ -233,31 +236,170 @@
 
     </div>
 
+</div>
 
-    <!-- GALERIE -->
-    <h3>Galerie</h3>
 
-    <div class="vehicle-gallery">
+<!-- GALERIE -->
+<h3>Galerie</h3>
 
-        {% for img in vehicle.images.all %}
+<div class="vehicle-gallery">
 
-            {% if img.image %}
+    {% for img in vehicle.images.all %}
 
-                <img
-                    src="{{ img.image.url }}"
-                    alt="Image {{ forloop.counter }} - {{ vehicle.brand }} {{ vehicle.model }}"
-                >
+        {% if img.image %}
 
-            {% endif %}
+            <img
+                src="{{ img.image.url }}"
+                alt="Image {{ forloop.counter }} - {{ vehicle.brand }} {{ vehicle.model }}"
+                data-bs-toggle="modal"
+                data-bs-target="#galleryModal"
+                data-bs-slide-to="{{ forloop.counter }}"
+            >
 
-        {% empty %}
+        {% endif %}
 
-            <p>Aucune image supplémentaire.</p>
+    {% empty %}
 
-        {% endfor %}
+        <p>Aucune image supplémentaire.</p>
+
+    {% endfor %}
+
+</div>
+```
+
+</div>
+
+<!-- MODAL CAROUSEL -->
+
+<div class="modal fade" id="galleryModal" tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+
+        <div class="modal-content bg-dark">
+
+            <!-- CROIX FERMER -->
+            <button
+                type="button"
+                class="btn-close position-absolute"
+                style="
+                    top:20px;
+                    right:25px;
+                    z-index:20;
+                    transform:scale(1.6);
+                    filter:invert(1);
+                    padding:12px;
+                    border-radius:50%;
+                "
+                data-bs-dismiss="modal">
+            </button>
+
+            <div class="modal-body p-0">
+
+                <div id="vehicleCarousel" class="carousel slide">
+
+                    <div class="carousel-inner">
+
+                        {% if vehicle.main_image %}
+                        <div class="carousel-item active text-center">
+
+                            <img
+                                src="{{ vehicle.main_image.url }}"
+                                class="d-block w-100"
+                                style="max-height:80vh; object-fit:contain;"
+                            >
+
+                        </div>
+                        {% endif %}
+
+                        {% for img in vehicle.images.all %}
+
+                            {% if img.image %}
+
+                            <div class="carousel-item text-center">
+
+                                <img
+                                    src="{{ img.image.url }}"
+                                    class="d-block w-100"
+                                    style="max-height:80vh; object-fit:contain;"
+                                >
+
+                            </div>
+
+                            {% endif %}
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- PRECEDENT -->
+                    <button
+                        class="carousel-control-prev"
+                        type="button"
+                        data-bs-target="#vehicleCarousel"
+                        data-bs-slide="prev"
+                        style="width:8%;">
+
+                        <span
+                            class="carousel-control-prev-icon"
+                            style="
+                                transform:scale(2);
+                                padding:25px;
+                                border-radius:50%;
+                            ">
+                        </span>
+
+                    </button>
+
+
+                    <!-- SUIVANT -->
+                    <button
+                        class="carousel-control-next"
+                        type="button"
+                        data-bs-target="#vehicleCarousel"
+                        data-bs-slide="next"
+                        style="width:8%;">
+
+                        <span
+                            class="carousel-control-next-icon"
+                            style="
+                                transform:scale(2);
+                                padding:25px;
+                                border-radius:50%;
+                            ">
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 
 </div>
+
+
+<script>
+
+const galleryModal = document.getElementById('galleryModal');
+
+galleryModal.addEventListener('show.bs.modal', function (event) {
+
+    const trigger = event.relatedTarget;
+    const slideIndex = trigger.getAttribute("data-bs-slide-to");
+
+    const carousel = bootstrap.Carousel.getOrCreateInstance(
+        document.querySelector('#vehicleCarousel')
+    );
+
+    carousel.to(slideIndex);
+
+});
+
+</script>
+
 
 {% endblock %}
