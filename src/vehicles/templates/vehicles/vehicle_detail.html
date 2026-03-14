@@ -162,6 +162,9 @@
 
                 <div class="vehicle-price">
                     {{ vehicle.price }} €
+                        {% if vehicle.vehicle_type == "rental" %}
+                            / mois
+                        {% endif %}
                 </div>
 
                 <div class="vehicle-specs">
