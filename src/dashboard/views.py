@@ -289,9 +289,7 @@ def change_vehicle_type(request):
         vehicle_id = request.POST.get("save_type")
         vehicle = get_object_or_404(Vehicle, id=vehicle_id)
 
-        # Vérification statut
         if vehicle.status != Vehicle.AVAILABLE:
-            logger.warning(f"Tentative modification type véhicule non disponible ID={vehicle_id}")
             return render(
                 request,
                 "dashboard/change_vehicle_type.html",
@@ -302,14 +300,18 @@ def change_vehicle_type(request):
             )
 
         new_type = request.POST.get("vehicle_type")
+        new_price = request.POST.get("price")
 
         if new_type in [Vehicle.PURCHASE, Vehicle.RENTAL]:
+
             vehicle.vehicle_type = new_type
+
+            if new_price:
+                vehicle.price = new_price
+
             vehicle.save()
 
-            logger.info(f"Type du véhicule ID={vehicle_id} modifié en {new_type} par {request.user.username}")
-
-            messages.success(request, "Type du véhicule modifié avec succès.")
+            messages.success(request, "Type et prix du véhicule modifiés avec succès.")
             return redirect("pro_dashboard")
 
     return render(request, "dashboard/change_vehicle_type.html")
