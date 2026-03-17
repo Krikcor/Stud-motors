@@ -124,19 +124,13 @@ class ReservationForm(forms.ModelForm):
 
 class ClientUpdateForm(forms.ModelForm):
 
-    first_name = forms.CharField(max_length=100, required=True)
-    last_name = forms.CharField(max_length=100, required=True)
-    email = forms.EmailField(required=True)
+    first_name = forms.CharField(label="Prénom",max_length=100, required=True)
+    last_name = forms.CharField(label='Nom',max_length=100, required=True)
+    email = forms.EmailField(label='Email',required=True)
 
     class Meta:
         model = User
         fields = ["first_name", "last_name", "email"]
-
-        labels = {
-            "first_name": "Prénom",
-            "last_name": "Nom",
-            "email": "Adresse e-mail",
-        }
 
 class OptionalPasswordChangeForm(forms.Form):
 
