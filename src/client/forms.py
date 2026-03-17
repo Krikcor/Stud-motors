@@ -56,6 +56,33 @@ class ReservationForm(forms.ModelForm):
             "accepted_gdpr": "J'accepte la politique de confidentialité (RGPD)",
         }
 
+        widgets = {
+            "phone": forms.TextInput(attrs={
+                "placeholder": "Ex : 0612345678"
+            }),
+            "address": forms.TextInput(attrs={
+                "placeholder": "Votre adresse complète"
+            }),
+            "city": forms.TextInput(attrs={
+                "placeholder": "Votre ville"
+            }),
+            "postal_code": forms.TextInput(attrs={
+                "placeholder": "Ex : 75000"
+            }),
+            "country": forms.TextInput(attrs={
+                "placeholder": "Votre pays"
+            }),
+            "driver_license": forms.ClearableFileInput(attrs={
+                "placeholder": "PDF ou JPG"
+            }),
+            "identity_document": forms.ClearableFileInput(attrs={
+                "placeholder": "PDF ou JPG"
+            }),
+            "proof_of_address": forms.ClearableFileInput(attrs={
+                "placeholder": "PDF ou JPG"
+            }),
+        }
+
 
     # VALIDATION PERMIS
     def clean_driver_license(self):
@@ -124,9 +151,31 @@ class ReservationForm(forms.ModelForm):
 
 class ClientUpdateForm(forms.ModelForm):
 
-    first_name = forms.CharField(label="Prénom",max_length=100, required=True)
-    last_name = forms.CharField(label='Nom',max_length=100, required=True)
-    email = forms.EmailField(label='Email',required=True)
+    first_name = forms.CharField(
+        label="Prénom",
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={
+            "placeholder": "Votre prénom"
+        })
+    )
+
+    last_name = forms.CharField(
+        label="Nom",
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={
+            "placeholder": "Votre nom"
+        })
+    )
+
+    email = forms.EmailField(
+        label="Adresse e-mail",
+        required=True,
+        widget=forms.EmailInput(attrs={
+            "placeholder": "exemple@mail.com"
+        })
+    )
 
     class Meta:
         model = User

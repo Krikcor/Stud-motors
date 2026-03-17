@@ -5,9 +5,49 @@ from django.core.exceptions import ValidationError
 
 
 class ClientRegisterForm(UserCreationForm):
-    first_name = forms.CharField(max_length=100, label="Prénom")
-    last_name = forms.CharField(max_length=100, label="Nom")
-    email = forms.EmailField(label="Adresse email")
+    first_name = forms.CharField(
+        max_length=100,
+        label="Prénom",
+        widget=forms.TextInput(attrs={
+            "placeholder": "Votre prénom"
+        })
+    )
+
+    last_name = forms.CharField(
+        max_length=100,
+        label="Nom",
+        widget=forms.TextInput(attrs={
+            "placeholder": "Votre nom"
+        })
+    )
+
+    email = forms.EmailField(
+        label="Adresse e-mail",
+        widget=forms.EmailInput(attrs={
+            "placeholder": "exemple@mail.com"
+        })
+    )
+
+    username = forms.CharField(
+        label="Nom d'utilisateur",
+        widget=forms.TextInput(attrs={
+            "placeholder": "Choisissez un nom d'utilisateur"
+        })
+    )
+
+    password1 = forms.CharField(
+        label="Mot de passe",
+        widget=forms.PasswordInput(attrs={
+            "placeholder": "Mini 8 caractères 1 Majuscule 1 Nombre 1 Carac spé"
+        })
+    )
+
+    password2 = forms.CharField(
+        label="Confirmer le mot de passe",
+        widget=forms.PasswordInput(attrs={
+            "placeholder": "Retapez votre mot de passe"
+        })
+    )
 
     class Meta:
         model = User
@@ -18,8 +58,6 @@ class ClientRegisterForm(UserCreationForm):
             "last_name": "Nom",
             "email": "Adresse e-mail",
             "username": "Nom d'utilisateur",
-            "password1": "Mot de passe",
-            "password2": "Confirmer le mot de passe",
         }
 
     def clean_email(self):

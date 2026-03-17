@@ -32,7 +32,15 @@ class VehicleForm(forms.ModelForm):
         }
 
         widgets = {
+            'brand': forms.TextInput(attrs={"placeholder": "Ex : Renault"}),
+            'model': forms.TextInput(attrs={"placeholder": "Ex : Clio"}),
+            'engine': forms.TextInput(attrs={"placeholder": "Ex : Diesel"}),
+            'year': forms.NumberInput(attrs={"placeholder": "Ex : 2020"}),
+            'color': forms.TextInput(attrs={"placeholder": "Ex : Noir"}),
+            'mileage': forms.NumberInput(attrs={"placeholder": "Ex : 120000"}),
             'vehicle_type': forms.RadioSelect(),
+            'price': forms.NumberInput(attrs={"placeholder": "Ex : 15000"}),
+            'main_image': forms.ClearableFileInput(attrs={"placeholder": "Choisissez une image"}),
         }
 
     def __init__(self, *args, **kwargs):
