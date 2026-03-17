@@ -9,16 +9,27 @@ class VehicleForm(forms.ModelForm):
     class Meta:
         model = Vehicle
         fields = [
-            'brand',
-            'model',
-            'engine',
-            'year',
-            'color',
-            'mileage',
-            'vehicle_type',
-            'price',
-            'main_image',
+            "brand",
+            "model",
+            "engine",
+            "year",
+            "color",
+            "mileage",
+            "vehicle_type",
+            "price",
+            "main_image",
         ]
+        labels = {
+            "brand": "Marque",
+            "model": "Modèle",
+            "engine": "Moteur",
+            "year": "Année",
+            "color": "Couleur",
+            "mileage": "Kilométrage",
+            "vehicle_type": "Type",
+            "price": "Prix",
+            "main_image": "Image principale",
+        }
 
         widgets = {
             'vehicle_type': forms.RadioSelect(),

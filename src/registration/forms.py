@@ -13,6 +13,15 @@ class ClientRegisterForm(UserCreationForm):
         model = User
         fields = ['first_name', 'last_name', 'email', 'username', 'password1', 'password2']
 
+        labels = {
+            "first_name": "Prénom",
+            "last_name": "Nom",
+            "email": "Adresse e-mail",
+            "username": "Nom d'utilisateur",
+            "password1": "Mot de passe",
+            "password2": "Confirmer le mot de passe",
+        }
+
     def clean_email(self):
         email = self.cleaned_data.get('email').lower()
         if User.objects.filter(email=email).exists():

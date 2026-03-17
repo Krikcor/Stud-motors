@@ -42,6 +42,20 @@ class ReservationForm(forms.ModelForm):
             "accepted_terms",
             "accepted_gdpr",
         ]
+        labels = {
+            "phone": "Téléphone",
+            "address": "Adresse",
+            "city": "Ville",
+            "postal_code": "Code postal",
+            "country": "Pays",
+            "driver_license": "Permis de conduire",
+            "identity_document": "Pièce d'identité",
+            "proof_of_address": "Justificatif de domicile",
+            "rental_options": "Options de location",
+            "accepted_terms": "J'accepte les conditions générales",
+            "accepted_gdpr": "J'accepte la politique de confidentialité (RGPD)",
+        }
+
 
     # VALIDATION PERMIS
     def clean_driver_license(self):
@@ -117,6 +131,12 @@ class ClientUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["first_name", "last_name", "email"]
+
+        labels = {
+            "first_name": "Prénom",
+            "last_name": "Nom",
+            "email": "Adresse e-mail",
+        }
 
 class OptionalPasswordChangeForm(forms.Form):
 
