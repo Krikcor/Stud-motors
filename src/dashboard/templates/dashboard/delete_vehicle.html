@@ -139,6 +139,56 @@
     max-height: 85vh;
 }
 
+.vehicle-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.vehicle-thumb {
+    width: 60px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+    background: #eee;
+}
+
+.vehicle-thumb.placeholder {
+    display: inline-block;
+    background: #ddd;
+}
+
+.vehicle-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.header-row h2 {
+    margin: 0;
+}
+
+.dashboard-link {
+    background: #6c757d;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+
+.dashboard-link:hover {
+    background: #5a6268;
+}
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
@@ -191,13 +241,20 @@
         {% endif %}
 
         {% for v in vehicles %}
-            <a href="{% url 'delete_vehicle' %}?id={{ v.id }}"
-               class="vehicle-item {% if vehicle and vehicle.id == v.id %}active{% endif %}">
+            <a href="{% url 'delete_vehicle' %}?id={{ v.id }}" class="vehicle-item {% if vehicle and vehicle.id == v.id %}active{% endif %}">
 
-                <strong>{{ v.brand }} {{ v.model }}</strong>
-                <small>{{ v.year }} · {{ v.price }}€ · {{ v.get_vehicle_type_display }}</small>
+                {% if v.main_image %}
+                    <img src="{{ v.main_image.url }}" class="vehicle-thumb">
+                {% else %}
+                    <div class="vehicle-thumb placeholder"></div>
+                {% endif %}
 
-            </a>
+    <div class="vehicle-info">
+        <strong>{{ v.brand }} {{ v.model }}</strong>
+        <small>{{ v.year }} · {{ v.price }}€ · {{ v.get_vehicle_type_display }}</small>
+    </div>
+
+</a>
         {% empty %}
             <p style="text-align:center; color:#666;">
                 Aucun véhicule trouvé
@@ -208,7 +265,13 @@
 
     <div class="delete-card">
 
-        <h2>Supprimer un véhicule</h2>
+        <div class="header-row">
+            <h2>Apporter les modifications</h2>
+
+            <a href="{% url 'pro_dashboard' %}" class="dashboard-link">
+                ← Dashboard
+            </a>
+        </div>
 
         {% if error %}
             <p style="color:red; text-align:center;">
