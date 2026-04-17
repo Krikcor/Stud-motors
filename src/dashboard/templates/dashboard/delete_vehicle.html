@@ -34,7 +34,34 @@
     font-size:2rem;
 }
 
-/* ITEM */
+/* ===== FILTRES ===== */
+.filter-box {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f9fafb;
+    border: 1px solid #eee;
+    color:black;
+}
+
+.filter-box form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-box input,
+.filter-box select {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.filter-box button {
+    margin-top: 5px;
+}
+
+/* ===== ITEM ===== */
 .vehicle-item {
     padding: 12px;
     border-bottom: 1px solid #eee;
@@ -108,21 +135,21 @@
 }
 
 .vehicle-list,
-    .delete-card {
-        max-height: 80vh;
-    }
+.delete-card {
+    max-height: 85vh;
+}
 
-/* RESPONSIVE */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
     .delete-container {
         grid-template-columns: 1fr;
     }
 }
 
-    @media (max-width: 992px) {
+    @media (max-width: 500px) {
     .vehicle-list,
-    .delete-card {
-        max-height: 120vh;
+    .modify-card {
+        max-height:120vh;
     }
 }
 
@@ -134,6 +161,32 @@
 
         <h2>Liste des véhicules</h2>
 
+        <!-- FILTRES -->
+        {% if filter %}
+        <div class="filter-box">
+            <form method="get">
+
+                    <label>Prix minimum</label>
+                    {{ filter.form.min_price }}
+
+                    <label>Prix maximum</label>
+                    {{ filter.form.max_price }}
+
+                    <label>Type</label>
+                    {{ filter.form.vehicle_type }}
+
+                    <label>
+                    {{ filter.form.hide_reserved }} Masquer les véhicules réservés
+                     </label>
+
+                    <button type="submit" class="btn btn-dark">
+                    Filtrer
+                    </button>
+
+                </form>
+        </div>
+        {% endif %}
+
         {% for v in vehicles %}
             <a href="{% url 'delete_vehicle' %}?id={{ v.id }}"
                class="vehicle-item {% if vehicle and vehicle.id == v.id %}active{% endif %}">
@@ -142,6 +195,10 @@
                 <small>{{ v.year }} · {{ v.price }}€ · {{ v.get_vehicle_type_display }}</small>
 
             </a>
+        {% empty %}
+            <p style="text-align:center; color:#666;">
+                Aucun véhicule trouvé
+            </p>
         {% endfor %}
 
     </div>

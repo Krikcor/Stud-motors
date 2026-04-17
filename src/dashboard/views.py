@@ -9,6 +9,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from client.models import Reservation
 from vehicles.models import Vehicle
+from vehicles.filters import VehicleFilter
 import logging
 
 logger = logging.getLogger(__name__)
@@ -76,7 +77,24 @@ def delete_vehicle(request):
     if request.user.profile.role != "pro":
         return HttpResponseForbidden()
 
-    # Étape 1 : sélection
+    # 1. QUERYSET + FILTRE (AJOUT SAFE)
+    queryset = Vehicle.objects.all().order_by("-created_at")
+    vehicle_filter = VehicleFilter(request.GET, queryset=queryset)
+    vehicles = vehicle_filter.qs
+
+    vehicle = None
+    error = None
+
+    # 2. Sélection via GET (nouvelle UI liste cliquable)
+    vehicle_id = request.GET.get("id")
+
+    if vehicle_id:
+        try:
+            vehicle = Vehicle.objects.get(id=vehicle_id)
+        except Vehicle.DoesNotExist:
+            error = "Véhicule introuvable."
+
+    # 3. Sélection via POST (ancienne UI / tests)
     if request.method == "POST" and "vehicle_id" in request.POST:
         vehicle_id = request.POST.get("vehicle_id")
 
@@ -89,10 +107,12 @@ def delete_vehicle(request):
 
         except Vehicle.DoesNotExist:
             return render(request, "dashboard/delete_vehicle.html", {
-                "error": "Véhicule introuvable."
+                "vehicles": vehicles,
+                "error": "Véhicule introuvable.",
+                "filter": vehicle_filter
             })
 
-    # Étape 2 : confirmation
+    # 4. Confirmation suppression
     if request.method == "POST" and "confirm_delete" in request.POST:
         vehicle_id = request.POST.get("confirm_delete")
         vehicle = get_object_or_404(Vehicle, id=vehicle_id)
@@ -100,7 +120,15 @@ def delete_vehicle(request):
         vehicle.delete()
         return redirect("pro_dashboard")
 
-    return render(request, "dashboard/delete_vehicle.html")
+    # 5. Rendu final (avec filtres)
+    return render(request, "dashboard/delete_vehicle.html", {
+        "vehicles": vehicles,
+        "vehicle": vehicle,
+        "error": error,
+        "filter": vehicle_filter
+    })
+
+
 
 
 @login_required
@@ -115,11 +143,17 @@ def modify_vehicle(request):
         )
         return HttpResponseForbidden()
 
-    vehicles = Vehicle.objects.all().order_by("-created_at")
+    # 1. QUERYSET DE BASE
+    queryset = Vehicle.objects.all().order_by("-created_at")
+
+    # 2. FILTRE (AJOUT SAFE)
+    vehicle_filter = VehicleFilter(request.GET, queryset=queryset)
+    vehicles = vehicle_filter.qs
+
     vehicle = None
     error = None
 
-    # 1. Sélection via liste (GET)
+    # 3. Sélection via liste (GET)
     vehicle_id = request.GET.get("id")
 
     if vehicle_id:
@@ -128,7 +162,7 @@ def modify_vehicle(request):
         except Vehicle.DoesNotExist:
             error = "Véhicule introuvable"
 
-    # 2. Recherche via POST (test + compat ancienne UI)
+    # 4. Recherche via POST (compat ancienne UI)
     if request.method == "POST" and "vehicle_id" in request.POST:
         vehicle_id = request.POST.get("vehicle_id")
 
@@ -137,7 +171,7 @@ def modify_vehicle(request):
         except Vehicle.DoesNotExist:
             error = "Véhicule introuvable"
 
-    # 3. Sauvegarde des modifications
+    # 5. Sauvegarde des modifications
     if request.method == "POST" and "save_modifications" in request.POST:
 
         vehicle_id = request.POST.get("save_modifications")
@@ -160,11 +194,12 @@ def modify_vehicle(request):
 
         return redirect("list_vehicle")
 
-    # 4. rendu final
+    # 6. Rendu final
     return render(request, "dashboard/modif_vehicle.html", {
         "vehicles": vehicles,
         "vehicle": vehicle,
-        "error": error
+        "error": error,
+        "filter": vehicle_filter  # ← indispensable pour le template
     })
 
 

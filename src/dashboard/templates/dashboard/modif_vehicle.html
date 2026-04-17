@@ -16,6 +16,8 @@
     gap: 20px;
 }
 
+/* ===== LISTE ===== */
+
 .vehicle-list {
     background: white;
     padding: 20px;
@@ -26,14 +28,42 @@
     overflow-y: auto;
 }
 
-/* TITRE LISTE */
 .vehicle-list h2 {
     margin-bottom: 15px;
     color: black;
     font-size: 2rem;
 }
 
-/* ITEM VEHICULE */
+/* ===== FILTRES ===== */
+
+.filter-box {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f9fafb;
+    border: 1px solid #eee;
+    color:black;
+}
+
+.filter-box form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-box input,
+.filter-box select {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.filter-box button {
+    margin-top: 5px;
+}
+
+/* ===== VEHICULE ITEM ===== */
+
 .vehicle-item {
     padding: 12px;
     border-bottom: 1px solid #eee;
@@ -62,6 +92,8 @@
     border-left: 4px solid #2b6cff;
 }
 
+/* ===== CARD DROITE ===== */
+
 .modify-card {
     background: white;
     padding: 25px;
@@ -72,7 +104,6 @@
     overflow-y: auto;
 }
 
-/* TITRE DROIT */
 .modify-card h2 {
     text-align: center;
     margin-bottom: 20px;
@@ -80,7 +111,6 @@
     font-size:2rem;
 }
 
-/* FORM */
 .modify-card label {
     display: block;
     margin-top: 10px;
@@ -99,33 +129,63 @@
 
     .vehicle-list,
     .modify-card {
-        max-height: 80vh;
+        max-height:85vh;
     }
 
 /* ===== RESPONSIVE ===== */
 
-/* TABLETTE + MOBILE */
 @media (max-width: 992px) {
     .modify-container {
         grid-template-columns: 1fr;
     }
 }
 
-    @media (max-width: 500px) {
-.vehicle-list,
+@media (max-width: 500px) {
+    .vehicle-list,
     .modify-card {
         max-height:120vh;
     }
 }
+
 </style>
 
 <div class="modify-container">
 
-    <!-- 🔵 VOLET GAUCHE -->
+    <!-- GAUCHE -->
     <div class="vehicle-list">
 
         <h2>Liste des véhicules</h2>
 
+        <!-- FILTRES -->
+        {% if filter %}
+        <div class="filter-box">
+
+                <form method="get">
+
+                    <label>Prix minimum</label>
+                    {{ filter.form.min_price }}
+
+                    <label>Prix maximum</label>
+                    {{ filter.form.max_price }}
+
+                    <label>Type</label>
+                    {{ filter.form.vehicle_type }}
+
+                    <label>
+                    {{ filter.form.hide_reserved }} Masquer les véhicules réservés
+                     </label>
+
+                    <button type="submit" class="btn btn-dark">
+                    Filtrer
+                    </button>
+
+                </form>
+
+
+        </div>
+        {% endif %}
+
+        <!-- LISTE -->
         {% for v in vehicles %}
             <a href="{% url 'modify_vehicle' %}?id={{ v.id }}"
                class="vehicle-item {% if vehicle and vehicle.id == v.id %}active{% endif %}">
@@ -134,11 +194,15 @@
                 <small>{{ v.year }} · {{ v.price }}€ · {{ v.get_vehicle_type_display }}</small>
 
             </a>
+        {% empty %}
+            <p style="text-align:center; color:#666;">
+                Aucun véhicule trouvé
+            </p>
         {% endfor %}
 
     </div>
 
-    <!-- 🟢 VOLET DROIT -->
+    <!-- 🟢 DROITE -->
     <div class="modify-card">
 
         <h2>Apporter les modifications</h2>
@@ -190,7 +254,7 @@
         {% else %}
 
             <p style="text-align:center; color:#666;">
-                Sélectionne un véhicule dans la liste
+                Sélectionnez un véhicule dans la liste
             </p>
 
         {% endif %}
