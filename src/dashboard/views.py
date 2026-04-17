@@ -146,7 +146,7 @@ def modify_vehicle(request):
     # 1. QUERYSET DE BASE
     queryset = Vehicle.objects.all().order_by("-created_at")
 
-    # 2. FILTRE (AJOUT SAFE)
+    # 2. FILTRE
     vehicle_filter = VehicleFilter(request.GET, queryset=queryset)
     vehicles = vehicle_filter.qs
 
@@ -177,6 +177,7 @@ def modify_vehicle(request):
         vehicle_id = request.POST.get("save_modifications")
         vehicle = get_object_or_404(Vehicle, id=vehicle_id)
 
+        # Champs classiques
         vehicle.brand = request.POST.get("brand")
         vehicle.model = request.POST.get("model")
         vehicle.engine = request.POST.get("engine")
@@ -186,7 +187,25 @@ def modify_vehicle(request):
         vehicle.vehicle_type = request.POST.get("vehicle_type")
         vehicle.price = request.POST.get("price")
 
+        # IMAGE PRINCIPALE
+        if request.FILES.get("main_image"):
+            vehicle.main_image = request.FILES["main_image"]
+
         vehicle.save()
+
+        # IMAGES SECONDAIRES
+        secondary_images = request.FILES.getlist("secondary_images")
+        if secondary_images:
+
+            # suppression complète des anciennes images
+            VehicleImage.objects.filter(vehicle=vehicle).delete()
+
+            # recréation
+            for image in secondary_images:
+                VehicleImage.objects.create(
+                    vehicle=vehicle,
+                    image=image
+                )
 
         logger.info(
             f"Véhicule ID={vehicle_id} modifié par {request.user.username}"
@@ -199,7 +218,7 @@ def modify_vehicle(request):
         "vehicles": vehicles,
         "vehicle": vehicle,
         "error": error,
-        "filter": vehicle_filter  # ← indispensable pour le template
+        "filter": vehicle_filter
     })
 
 
