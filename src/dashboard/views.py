@@ -73,28 +73,21 @@ def create_vehicle(request):
 @login_required
 def delete_vehicle(request):
 
-    logger.info(f"{request.user.username} accède à la suppression de véhicule")
-
-    # Vérifie seulement que c'est un pro
     if request.user.profile.role != "pro":
-        logger.warning(f"Tentative suppression véhicule non autorisée par {request.user.username}")
         return HttpResponseForbidden()
 
-    # Étape 1 : saisie ID
+    # Étape 1 : sélection
     if request.method == "POST" and "vehicle_id" in request.POST:
         vehicle_id = request.POST.get("vehicle_id")
 
         try:
             vehicle = Vehicle.objects.get(id=vehicle_id)
 
-            logger.info(f"Demande de suppression du véhicule ID={vehicle_id} par {request.user.username}")
-
             return render(request, "dashboard/confirm_delete.html", {
                 "vehicle": vehicle
             })
 
         except Vehicle.DoesNotExist:
-            logger.warning(f"Suppression demandée pour véhicule inexistant ID={vehicle_id}")
             return render(request, "dashboard/delete_vehicle.html", {
                 "error": "Véhicule introuvable."
             })
@@ -103,8 +96,6 @@ def delete_vehicle(request):
     if request.method == "POST" and "confirm_delete" in request.POST:
         vehicle_id = request.POST.get("confirm_delete")
         vehicle = get_object_or_404(Vehicle, id=vehicle_id)
-
-        logger.warning(f"Suppression définitive du véhicule ID={vehicle_id} par {request.user.username}")
 
         vehicle.delete()
         return redirect("pro_dashboard")
@@ -117,30 +108,38 @@ def modify_vehicle(request):
 
     logger.info(f"{request.user.username} accède à la modification de véhicule")
 
+    # Sécurité rôle
     if request.user.profile.role != "pro":
-        logger.warning(f"Tentative modification véhicule non autorisée par {request.user.username}")
+        logger.warning(
+            f"Tentative modification véhicule non autorisée par {request.user.username}"
+        )
         return HttpResponseForbidden()
 
-    # Recherche par ID
+    vehicles = Vehicle.objects.all().order_by("-created_at")
+    vehicle = None
+    error = None
+
+    # 1. Sélection via liste (GET)
+    vehicle_id = request.GET.get("id")
+
+    if vehicle_id:
+        try:
+            vehicle = Vehicle.objects.get(id=vehicle_id)
+        except Vehicle.DoesNotExist:
+            error = "Véhicule introuvable"
+
+    # 2. Recherche via POST (test + compat ancienne UI)
     if request.method == "POST" and "vehicle_id" in request.POST:
         vehicle_id = request.POST.get("vehicle_id")
 
         try:
             vehicle = Vehicle.objects.get(id=vehicle_id)
-
-            logger.info(f"Modification demandée pour véhicule ID={vehicle_id} par {request.user.username}")
-
-            return render(request, "dashboard/modif_vehicle.html", {
-                "vehicle": vehicle
-            })
         except Vehicle.DoesNotExist:
-            logger.warning(f"Modification demandée pour véhicule inexistant ID={vehicle_id}")
-            return render(request, "dashboard/modif_vehicle.html", {
-                "error": "Véhicule introuvable."
-            })
+            error = "Véhicule introuvable"
 
-    # Sauvegarde des modifications
+    # 3. Sauvegarde des modifications
     if request.method == "POST" and "save_modifications" in request.POST:
+
         vehicle_id = request.POST.get("save_modifications")
         vehicle = get_object_or_404(Vehicle, id=vehicle_id)
 
@@ -155,11 +154,18 @@ def modify_vehicle(request):
 
         vehicle.save()
 
-        logger.info(f"Véhicule ID={vehicle_id} modifié par {request.user.username}")
+        logger.info(
+            f"Véhicule ID={vehicle_id} modifié par {request.user.username}"
+        )
 
-        return redirect("pro_dashboard")
+        return redirect("list_vehicle")
 
-    return render(request, "dashboard/modif_vehicle.html")
+    # 4. rendu final
+    return render(request, "dashboard/modif_vehicle.html", {
+        "vehicles": vehicles,
+        "vehicle": vehicle,
+        "error": error
+    })
 
 
 @login_required

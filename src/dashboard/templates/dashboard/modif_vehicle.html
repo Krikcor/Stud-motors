@@ -5,142 +5,198 @@
 {% block content %}
 
 <style>
-.modify-vehicle-container {
-    max-width: 900px;
-    margin: 50px auto;
+
+.modify-container {
+    max-width: 1200px;
+    margin: 40px auto;
     padding: 20px;
 
-    min-height: calc(90vh - 80px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 20px;
+}
+
+.vehicle-list {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+/* TITRE LISTE */
+.vehicle-list h2 {
+    margin-bottom: 15px;
+    color: black;
+    font-size: 2rem;
+}
+
+/* ITEM VEHICULE */
+.vehicle-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: 0.2s;
+    text-decoration: none;
+    display: block;
+}
+
+.vehicle-item:hover {
+    background: #f3f5f7;
+    transform: translateX(3px);
+}
+
+.vehicle-item strong {
+    display: block;
+    color: black;
+}
+
+.vehicle-item small {
+    color: #666;
+}
+
+.active {
+    background: #e9f1ff;
+    border-left: 4px solid #2b6cff;
 }
 
 .modify-card {
     background: white;
-    padding: 30px;
+    padding: 25px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
 }
 
-/* Titres et textes */
+/* TITRE DROIT */
 .modify-card h2 {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     color: black;
+    font-size:2rem;
 }
 
-.modify-card label,
-.modify-card input,
-.modify-card select,
-.modify-card p {
-    color: black;
+/* FORM */
+.modify-card label {
     display: block;
-    margin-bottom: 12px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: black;
 }
 
 .modify-card input,
 .modify-card select {
     width: 100%;
-    padding: 8px 10px;
-    border-radius: 5px;
+    padding: 10px;
+    border-radius: 6px;
     border: 1px solid #ccc;
     box-sizing: border-box;
 }
 
-/* Boutons */
-.modify-card button {
-    padding: 12px 25px;
-    font-size: 1.05rem;
-    margin-top: 15px;
-    width: 100%;
+    .vehicle-list,
+    .modify-card {
+        max-height: 80vh;
+    }
+
+/* ===== RESPONSIVE ===== */
+
+/* TABLETTE + MOBILE */
+@media (max-width: 992px) {
+    .modify-container {
+        grid-template-columns: 1fr;
+    }
 }
 
-.return-link {
-    display: block;
-    margin-top: 20px;
-    text-align: center;
-}
-    input[type=number] {
-    -moz-appearance: textfield;
-}
-
-/* Chrome */
-input::-webkit-inner-spin-button,
-input::-webkit-outer-spin-button {
-	-webkit-appearance: none;
-	margin:0;
-}
-
-/* Opéra*/
-input::-o-inner-spin-button,
-input::-o-outer-spin-button {
-	-o-appearance: none;
-	margin:0
+    @media (max-width: 500px) {
+.vehicle-list,
+    .modify-card {
+        max-height:120vh;
+    }
 }
 </style>
 
-<div class="modify-vehicle-container">
+<div class="modify-container">
 
+    <!-- 🔵 VOLET GAUCHE -->
+    <div class="vehicle-list">
+
+        <h2>Liste des véhicules</h2>
+
+        {% for v in vehicles %}
+            <a href="{% url 'modify_vehicle' %}?id={{ v.id }}"
+               class="vehicle-item {% if vehicle and vehicle.id == v.id %}active{% endif %}">
+
+                <strong>{{ v.brand }} {{ v.model }}</strong>
+                <small>{{ v.year }} · {{ v.price }}€ · {{ v.get_vehicle_type_display }}</small>
+
+            </a>
+        {% endfor %}
+
+    </div>
+
+    <!-- 🟢 VOLET DROIT -->
     <div class="modify-card">
-        <h2>Modifier un véhicule</h2>
+
+        <h2>Apporter les modifications</h2>
 
         {% if error %}
             <p style="color:red; text-align:center;">{{ error }}</p>
         {% endif %}
 
-        <!-- Étape 1 : recherche -->
-        {% if not vehicle %}
-        <form method="post">
-            {% csrf_token %}
-            <label for="vehicle_id">ID du véhicule :</label>
-            <input type="number" id="vehicle_id" name="vehicle_id" required>
-            <button type="submit" class="btn btn-dark">Rechercher</button>
-        </form>
-        {% endif %}
-
-        <!-- Étape 2 : formulaire de modification -->
         {% if vehicle %}
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="save_modifications" value="{{ vehicle.id }}">
 
-            <label>Marque :</label>
-            <input type="text" name="brand" value="{{ vehicle.brand }}" required>
+            <form method="post">
+                {% csrf_token %}
 
-            <label>Modèle :</label>
-            <input type="text" name="model" value="{{ vehicle.model }}" required>
+                <label>Marque</label>
+                <input type="text" name="brand" value="{{ vehicle.brand }}">
 
-            <label>Moteur :</label>
-            <input type="text" name="engine" value="{{ vehicle.engine }}" required>
+                <label>Modèle</label>
+                <input type="text" name="model" value="{{ vehicle.model }}">
 
-            <label>Année :</label>
-            <input type="number" name="year" value="{{ vehicle.year }}" required>
+                <label>Moteur</label>
+                <input type="text" name="engine" value="{{ vehicle.engine }}">
 
-            <label>Couleur :</label>
-            <input type="text" name="color" value="{{ vehicle.color }}" required>
+                <label>Année</label>
+                <input type="number" name="year" value="{{ vehicle.year }}">
 
-            <label>Kilométrage :</label>
-            <input type="number" name="mileage" value="{{ vehicle.mileage }}" required>
+                <label>Couleur</label>
+                <input type="text" name="color" value="{{ vehicle.color }}">
 
-            <label>Type :</label>
-            <select name="vehicle_type" required>
-                <option value="purchase" {% if vehicle.vehicle_type == "purchase" %}selected{% endif %}>Achat</option>
-                <option value="rental" {% if vehicle.vehicle_type == "rental" %}selected{% endif %}>Location</option>
-            </select>
+                <label>Kilométrage</label>
+                <input type="number" name="mileage" value="{{ vehicle.mileage }}">
 
-            <label>Prix :</label>
-            <input type="number" step="0.01" name="price" value="{{ vehicle.price }}" required>
+                <label>Type</label>
+                <select name="vehicle_type">
+                    <option value="purchase" {% if vehicle.vehicle_type == "purchase" %}selected{% endif %}>Achat</option>
+                    <option value="rental" {% if vehicle.vehicle_type == "rental" %}selected{% endif %}>Location</option>
+                </select>
 
-            <button type="submit" class="btn btn-dark">Enregistrer les modifications</button>
-        </form>
+                <label>Prix</label>
+                <input type="number" step="0.01" name="price" value="{{ vehicle.price }}">
+
+                <input type="hidden" name="save_modifications" value="{{ vehicle.id }}">
+
+                <button type="submit" class="btn btn-dark" style="margin-top:15px;">
+                    Enregistrer
+                </button>
+
+            </form>
+
+        {% else %}
+
+            <p style="text-align:center; color:#666;">
+                Sélectionne un véhicule dans la liste
+            </p>
+
         {% endif %}
-
-        <a href="{% url 'pro_dashboard' %}" class="btn btn-secondary return-link">
-            Retour vers le dashboard
-        </a>
 
     </div>
+
 </div>
 
 {% endblock %}

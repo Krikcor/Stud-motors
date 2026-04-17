@@ -73,6 +73,22 @@ WSGI_APPLICATION = "mmotors.wsgi.application"
 
 # Database
 
+"""
+EN PRODUCTION POUR LA BDD POSTGRES:
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'Name_db',
+        'USER': 'Name_user',
+        'PASSWORD': 'Password',
+        'HOST': 'Host',
+        'PORT': 'Port',
+    }
+}
+"""
+
+# EN LOCAL SEULEMENT, VOIR AU DESSUS POUR LA PRODUCTION
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
