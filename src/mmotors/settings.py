@@ -74,21 +74,7 @@ WSGI_APPLICATION = "mmotors.wsgi.application"
 # Database
 
 """
-EN PRODUCTION POUR LA BDD POSTGRES:
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'Name_db',
-        'USER': 'Name_user',
-        'PASSWORD': 'Password',
-        'HOST': 'Host',
-        'PORT': 'Port',
-    }
-}
-"""
-
-# EN LOCAL SEULEMENT, VOIR AU DESSUS POUR LA PRODUCTION
+EN LOCAL : 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -96,6 +82,18 @@ DATABASES = {
     }
 }
 
+EN PRODUCTION :
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'name_db',
+        'USER': 'name_user',
+        'PASSWORD': 'password',
+        'HOST': 'host.postgres.pythonanywhere-services.com',
+        'PORT': 'NUMERO',
+    }
+}
+"""
 
 # Password validation
 
@@ -151,10 +149,6 @@ DEFAULT_FROM_EMAIL = os.getenv("BREVO_MAIL")
 #MAIL ERREURS DJANGO ADMIN
 SERVER_EMAIL = os.getenv("BREVO_MAIL")
 
-ADMINS = [
-    ("Admin", os.getenv("ADMINMAIL"), ""),
-]
-
 # Authentication redirects
 
 LOGIN_URL = "login"
@@ -171,30 +165,3 @@ CSRF_COOKIE_HTTPONLY = True
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-# Logs
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-
-    "formatters": {
-        "simple": {
-            "format": "%(levelname)s %(name)s %(message)s",
-        },
-    },
-
-    "handlers": {
-        "file": {
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "logs/django.log",
-            "formatter": "simple",
-            "level": "INFO",
-        },
-    },
-
-    "root": {
-        "handlers": ["file"],
-        "level": "INFO",
-    },
-}

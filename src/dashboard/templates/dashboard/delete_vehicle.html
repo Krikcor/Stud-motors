@@ -5,80 +5,310 @@
 {% block content %}
 
 <style>
-.delete-vehicle-container {
-    max-width: 600px;
-    margin: 50px auto;
+
+/* ===== LAYOUT GLOBAL ===== */
+.delete-container {
+    max-width: 1200px;
+    margin: 40px auto;
     padding: 20px;
-        display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(90vh - 80px);
+
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 20px;
 }
 
-.delete-card {
+/* ===== VOLET GAUCHE ===== */
+.vehicle-list {
     background: white;
-    padding: 30px;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.vehicle-list h2 {
+    margin-bottom: 15px;
+    color: black;
+    font-size:2rem;
+}
+
+/* ===== FILTRES ===== */
+.filter-box {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f9fafb;
+    border: 1px solid #eee;
+    color:black;
+}
+
+.filter-box form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-box input,
+.filter-box select {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.filter-box button {
+    margin-top: 5px;
+}
+
+/* ===== ITEM ===== */
+.vehicle-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.vehicle-item:hover {
+    background: #f3f5f7;
+    transform: translateX(3px);
+}
+
+.vehicle-item strong {
+    display: block;
+    color: black;
+}
+
+.vehicle-item small {
+    color: #666;
+}
+
+.active {
+    background: #ffecec;
+    border-left: 4px solid #dc3545;
+}
+
+/* ===== VOLET DROIT ===== */
+.delete-card {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
 }
 
 .delete-card h2 {
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     color: black;
+    font-size:2rem;
 }
 
-.delete-card label,
-.delete-card input,
-.delete-card p {
-    color: black;
-    display: block;
-    margin-bottom: 12px;
-}
-
-.delete-card input[type="number"] {
-    width: 100%;
-    padding: 8px 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-}
-
-.delete-card button {
-    width: 100%;
-    padding: 12px 25px;
-    font-size: 1.05rem;
-    margin-top: 10px;
-}
-
-.return-link {
-    display: block;
+/* WARNING BOX */
+.warning-box {
+    background: #fff3f3;
+    border: 1px solid #ffcccc;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
     text-align: center;
-    margin-top: 20px;
+    color:black;
 }
+
+/* BUTTON */
+.delete-btn {
+    width: 100%;
+    padding: 12px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background: #bb2d3b;
+}
+
+.vehicle-list,
+.delete-card {
+    max-height: 85vh;
+}
+
+.vehicle-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.vehicle-thumb {
+    width: 60px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+    background: #eee;
+}
+
+.vehicle-thumb.placeholder {
+    display: inline-block;
+    background: #ddd;
+}
+
+.vehicle-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.header-row h2 {
+    margin: 0;
+}
+
+.dashboard-link {
+    background: #6c757d;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+
+.dashboard-link:hover {
+    background: #5a6268;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+    .delete-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+    @media (max-width: 500px) {
+    .vehicle-list,
+    .modify-card {
+        max-height:120vh;
+    }
+}
+
 </style>
 
-<div class="delete-vehicle-container">
 
-    <div class="delete-card">
-        <h2>Supprimer un véhicule</h2>
 
-        {% if error %}
-            <p style="color:red; text-align:center;">{{ error }}</p>
+<div class="delete-container">
+
+    <div class="vehicle-list">
+
+        <h2>Liste des véhicules</h2>
+
+        <!-- FILTRES -->
+        {% if filter %}
+        <div class="filter-box">
+            <form method="get">
+
+                    <label>Prix minimum</label>
+                    {{ filter.form.min_price }}
+
+                    <label>Prix maximum</label>
+                    {{ filter.form.max_price }}
+
+                    <label>Type</label>
+                    {{ filter.form.vehicle_type }}
+
+                    <label>
+                    {{ filter.form.hide_reserved }} Masquer les véhicules réservés
+                     </label>
+
+                    <button type="submit" class="btn btn-dark">
+                    Filtrer
+                    </button>
+
+                </form>
+        </div>
         {% endif %}
 
-        <form method="post">
-            {% csrf_token %}
+        {% for v in vehicles %}
+            <a href="{% url 'delete_vehicle' %}?id={{ v.id }}" class="vehicle-item {% if vehicle and vehicle.id == v.id %}active{% endif %}">
 
-            <label for="vehicle_id">ID du véhicule :</label>
-            <input type="number" id="vehicle_id" name="vehicle_id" required>
+                {% if v.main_image %}
+                    <img src="{{ v.main_image.url }}" class="vehicle-thumb">
+                {% else %}
+                    <div class="vehicle-thumb placeholder"></div>
+                {% endif %}
 
-            <button type="submit" class="btn btn-danger">Supprimer</button>
-        </form>
+    <div class="vehicle-info">
+        <strong>{{ v.brand }} {{ v.model }}</strong>
+        <small>{{ v.year }} · {{ v.price }}€ · {{ v.get_vehicle_type_display }}</small>
+    </div>
 
-        <a href="{% url 'pro_dashboard' %}" class="btn btn-secondary return-link">
-            Retour au dashboard
-        </a>
+</a>
+        {% empty %}
+            <p style="text-align:center; color:#666;">
+                Aucun véhicule trouvé
+            </p>
+        {% endfor %}
+
+    </div>
+
+    <div class="delete-card">
+
+        <div class="header-row">
+            <h2>Apporter les modifications</h2>
+
+            <a href="{% url 'pro_dashboard' %}" class="dashboard-link">
+                ← Dashboard
+            </a>
+        </div>
+
+        {% if error %}
+            <p style="color:red; text-align:center;">
+                {{ error }}
+            </p>
+        {% endif %}
+
+        {% if vehicle %}
+
+            <p style="text-align:center; color:red;">
+                Confirmer la suppression
+            </p>
+
+            <div class="warning-box">
+                Vous êtes sur le point de supprimer :
+                <br>
+                <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <input type="hidden" name="confirm_delete" value="{{ vehicle.id }}">
+
+                <button type="submit" class="delete-btn">
+                    Confirmer la suppression
+                </button>
+            </form>
+
+        {% else %}
+
+            <p style="text-align:center; color:#666;">
+                Sélectionnez un véhicule à supprimer
+            </p>
+
+        {% endif %}
+
     </div>
 
 </div>

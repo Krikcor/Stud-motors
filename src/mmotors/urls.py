@@ -20,7 +20,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import index
-
+from .views import test403
 
 urlpatterns = [
     path('', index, name='index'),
@@ -30,7 +30,13 @@ urlpatterns = [
     path('registration/', include('registration.urls')),
     path('client/', include('client.urls')),
     path('dashboard/', include('dashboard.urls')),
+    path("test403/", test403),
 ]
+
+handler404 = "mmotors.views.error_404"
+handler500 = "mmotors.views.error_500"
+handler403 = "mmotors.views.error_403"
+handler400 = "mmotors.views.error_400"
 
 # Media files
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

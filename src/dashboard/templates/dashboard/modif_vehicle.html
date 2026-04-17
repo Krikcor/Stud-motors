@@ -5,125 +5,348 @@
 {% block content %}
 
 <style>
-.modify-vehicle-container {
-    max-width: 900px;
-    margin: 50px auto;
+
+.modify-container {
+    max-width: 1200px;
+    margin: 40px auto;
     padding: 20px;
 
-    min-height: calc(90vh - 80px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 20px;
 }
+
+/* ===== LISTE ===== */
+
+.vehicle-list {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.vehicle-list h2 {
+    margin-bottom: 15px;
+    color: black;
+    font-size: 2rem;
+}
+
+/* ===== FILTRES ===== */
+
+.filter-box {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f9fafb;
+    border: 1px solid #eee;
+    color:black;
+}
+
+.filter-box form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-box input,
+.filter-box select {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.filter-box button {
+    margin-top: 5px;
+}
+
+/* ===== VEHICULE ITEM ===== */
+
+.vehicle-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: 0.2s;
+    text-decoration: none;
+    display: block;
+}
+
+.vehicle-item:hover {
+    background: #f3f5f7;
+    transform: translateX(3px);
+}
+
+.vehicle-item strong {
+    display: block;
+    color: black;
+}
+
+.vehicle-item small {
+    color: #666;
+}
+
+.active {
+    background: #e9f1ff;
+    border-left: 4px solid #2b6cff;
+}
+
+/* ===== CARD DROITE ===== */
 
 .modify-card {
     background: white;
-    padding: 30px;
+    padding: 25px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
 }
 
-/* Titres et textes */
 .modify-card h2 {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     color: black;
+    font-size:2rem;
 }
 
-.modify-card label,
-.modify-card input,
-.modify-card select,
-.modify-card p {
-    color: black;
+.modify-card label {
     display: block;
-    margin-bottom: 12px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: black;
 }
 
 .modify-card input,
 .modify-card select {
     width: 100%;
-    padding: 8px 10px;
-    border-radius: 5px;
+    padding: 10px;
+    border-radius: 6px;
     border: 1px solid #ccc;
     box-sizing: border-box;
 }
 
-/* Boutons */
-.modify-card button {
-    padding: 12px 25px;
-    font-size: 1.05rem;
-    margin-top: 15px;
-    width: 100%;
+    .vehicle-list,
+    .modify-card {
+        max-height:85vh;
+    }
+
+.vehicle-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.return-link {
-    display: block;
-    margin-top: 20px;
-    text-align: center;
+.vehicle-thumb {
+    width: 60px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+    background: #eee;
 }
+
+.vehicle-thumb.placeholder {
+    display: inline-block;
+    background: #ddd;
+}
+
+.vehicle-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.header-row h2 {
+    margin: 0;
+}
+
+.dashboard-link {
+    background: #6c757d;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+
+.dashboard-link:hover {
+    background: #5a6268;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 992px) {
+    .modify-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .vehicle-list,
+    .modify-card {
+        max-height:120vh;
+    }
+}
+
 </style>
 
-<div class="modify-vehicle-container">
+<div class="modify-container">
 
-    <div class="modify-card">
-        <h2>Modifier un véhicule</h2>
+    <!-- GAUCHE -->
+    <div class="vehicle-list">
 
-        {% if error %}
-            <p style="color:red; text-align:center;">{{ error }}</p>
+        <h2>Liste des véhicules</h2>
+
+        <!-- FILTRES -->
+        {% if filter %}
+        <div class="filter-box">
+
+                <form method="get">
+
+                    <label>Prix minimum</label>
+                    {{ filter.form.min_price }}
+
+                    <label>Prix maximum</label>
+                    {{ filter.form.max_price }}
+
+                    <label>Type</label>
+                    {{ filter.form.vehicle_type }}
+
+                    <label>
+                    {{ filter.form.hide_reserved }} Masquer les véhicules réservés
+                     </label>
+
+                    <button type="submit" class="btn btn-dark">
+                    Filtrer
+                    </button>
+
+                </form>
+
+
+        </div>
         {% endif %}
 
-        <!-- Étape 1 : recherche -->
-        {% if not vehicle %}
-        <form method="post">
+        <!-- LISTE -->
+        {% for v in vehicles %}
+            <a href="{% url 'modify_vehicle' %}?id={{ v.id }}" class="vehicle-item {% if vehicle and vehicle.id == v.id %}active{% endif %}">
+
+                {% if v.main_image %}
+                    <img src="{{ v.main_image.url }}" class="vehicle-thumb">
+                {% else %}
+                    <div class="vehicle-thumb placeholder"></div>
+                {% endif %}
+
+    <div class="vehicle-info">
+        <strong>{{ v.brand }} {{ v.model }}</strong>
+        <small>{{ v.year }} · {{ v.price }}€ · {{ v.get_vehicle_type_display }}</small>
+    </div>
+
+</a>
+        {% empty %}
+            <p style="text-align:center; color:#666;">
+                Aucun véhicule trouvé
+            </p>
+        {% endfor %}
+
+    </div>
+
+    <!-- DROITE -->
+<div class="modify-card">
+
+    <div class="header-row">
+        <h2>Apporter les modifications</h2>
+
+        <a href="{% url 'pro_dashboard' %}" class="dashboard-link">
+            ← Dashboard
+        </a>
+    </div>
+
+    {% if error %}
+        <p style="color:red; text-align:center;">{{ error }}</p>
+    {% endif %}
+
+    {% if vehicle %}
+
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <label for="vehicle_id">ID du véhicule :</label>
-            <input type="number" id="vehicle_id" name="vehicle_id" required>
-            <button type="submit" class="btn btn-dark">Rechercher</button>
-        </form>
-        {% endif %}
 
-        <!-- Étape 2 : formulaire de modification -->
-        {% if vehicle %}
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="save_modifications" value="{{ vehicle.id }}">
+            <label>Marque</label>
+            <input type="text" name="brand" value="{{ vehicle.brand }}">
 
-            <label>Marque :</label>
-            <input type="text" name="brand" value="{{ vehicle.brand }}" required>
+            <label>Modèle</label>
+            <input type="text" name="model" value="{{ vehicle.model }}">
 
-            <label>Modèle :</label>
-            <input type="text" name="model" value="{{ vehicle.model }}" required>
+            <label>Moteur</label>
+            <input type="text" name="engine" value="{{ vehicle.engine }}">
 
-            <label>Moteur :</label>
-            <input type="text" name="engine" value="{{ vehicle.engine }}" required>
+            <label>Année</label>
+            <input type="number" name="year" value="{{ vehicle.year }}">
 
-            <label>Année :</label>
-            <input type="number" name="year" value="{{ vehicle.year }}" required>
+            <label>Couleur</label>
+            <input type="text" name="color" value="{{ vehicle.color }}">
 
-            <label>Couleur :</label>
-            <input type="text" name="color" value="{{ vehicle.color }}" required>
+            <label>Kilométrage</label>
+            <input type="number" name="mileage" value="{{ vehicle.mileage }}">
 
-            <label>Kilométrage :</label>
-            <input type="number" name="mileage" value="{{ vehicle.mileage }}" required>
-
-            <label>Type :</label>
-            <select name="vehicle_type" required>
+            <label>Type</label>
+            <select name="vehicle_type">
                 <option value="purchase" {% if vehicle.vehicle_type == "purchase" %}selected{% endif %}>Achat</option>
                 <option value="rental" {% if vehicle.vehicle_type == "rental" %}selected{% endif %}>Location</option>
             </select>
 
-            <label>Prix :</label>
-            <input type="number" step="0.01" name="price" value="{{ vehicle.price }}" required>
+            <label>Prix</label>
+            <input type="number" step="0.01" name="price" value="{{ vehicle.price }}">
 
-            <button type="submit" class="btn btn-dark">Enregistrer les modifications</button>
+            <label>Image principale</label>
+
+            {% if vehicle.main_image %}
+                <div style="margin-bottom:8px;">
+                    <img src="{{ vehicle.main_image.url }}" style="max-width:120px; border-radius:6px;">
+                </div>
+            {% endif %}
+
+            <input type="file" name="main_image">
+
+            <label>Images secondaires (remplacement complet)</label>
+
+            {% if vehicle.images.all %}
+                <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+                    {% for img in vehicle.images.all %}
+                        <img src="{{ img.image.url }}" style="width:80px; height:60px; object-fit:cover; border-radius:6px;">
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <input type="file" name="secondary_images" multiple>
+
+            <input type="hidden" name="save_modifications" value="{{ vehicle.id }}">
+
+            <button type="submit" class="btn btn-dark" style="margin-top:15px;">
+                Enregistrer
+            </button>
+
         </form>
-        {% endif %}
 
-        <a href="{% url 'pro_dashboard' %}" class="btn btn-secondary return-link">
-            Retour vers le dashboard
-        </a>
+    {% else %}
 
-    </div>
+        <p style="text-align:center; color:#666;">
+            Sélectionnez un véhicule dans la liste
+        </p>
+
+    {% endif %}
+
+</div>
+
 </div>
 
 {% endblock %}

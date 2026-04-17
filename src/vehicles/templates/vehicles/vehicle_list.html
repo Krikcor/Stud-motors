@@ -164,6 +164,36 @@ label{
 
     h3{color:black;}
 
+    @media (min-width: 991px) and (max-width: 1399px) {
+
+    input{
+    max-width:8em;
+    }
+}
+
+    @media (min-width: 767px) and (max-width: 990px) {
+
+    input, select{
+    max-width:6em;
+    }
+}
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Chrome */
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin:0;
+}
+
+/* Opéra*/
+input::-o-inner-spin-button,
+input::-o-outer-spin-button {
+	-o-appearance: none;
+	margin:0
+}
 </style>
 
 
@@ -205,7 +235,7 @@ label{
                 {{ filter.form.max_price }}
             </div>
 
-            <div class="col-md-2">
+            <div class="col-md-2 trierpar">
                 <label>Trier par</label>
                 {{ filter.form.order_by }}
             </div>
@@ -283,6 +313,9 @@ label{
 
                     <p class="vehicle-price">
                         {{ vehicle.price }} €
+                        {% if vehicle.vehicle_type == "rental" %}
+                            / mois
+                        {% endif %}
                     </p>
 
                     <p class="vehicle-type">

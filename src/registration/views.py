@@ -6,15 +6,20 @@ from django.core.mail import send_mail
 from django.conf import settings
 from accounts.models import Profile
 from .forms import ClientRegisterForm
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def register_view(request):
 
-    # Empêche un utilisateur déjà connecté de se réinscrire
     if request.user.is_authenticated:
+        logger.warning("Tentative d'inscription par un utilisateur déjà connecté")
         return redirect('index')
 
     if request.method == 'POST':
+        logger.info("Tentative de création de compte client")
+
         form = ClientRegisterForm(request.POST)
 
         if form.is_valid():
@@ -29,6 +34,8 @@ def register_view(request):
                         role='client'
                     )
 
+                logger.info(f"Compte client créé : {user.username}")
+
                 # Email de bienvenue
                 send_mail(
                     subject="Bienvenue chez M-Motors",
@@ -40,7 +47,7 @@ def register_view(request):
                     ),
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[user.email],
-                    fail_silently=True,  # évite de casser l'inscription si email échoue
+                    fail_silently=True,
                 )
 
                 # Connexion automatique après inscription
@@ -49,8 +56,12 @@ def register_view(request):
                 messages.success(request, "Compte client créé avec succès !")
                 return redirect('client_dashboard')
 
-            except Exception:
+            except Exception as e:
+                logger.error(f"Erreur lors de la création du compte : {e}")
                 messages.error(request, "Une erreur est survenue. Veuillez réessayer.")
+        else:
+            logger.warning("Formulaire d'inscription invalide")
+
     else:
         form = ClientRegisterForm()
 
